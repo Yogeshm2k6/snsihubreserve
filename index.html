@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SNS iHub - Hall Booking</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+          },
+          colors: {
+            white: '#ffffff',
+            black: '#0f172a', /* slate-900 */
+            gray: {
+              50: '#f8fafc',
+              100: '#f1f5f9',
+              200: '#e2e8f0',
+              300: '#cbd5e1',
+              400: '#94a3b8',
+              500: '#64748b',
+              600: '#475569',
+              700: '#334155',
+              800: '#1e293b',
+              900: '#0f172a',
+            },
+            brand: { /* Deep Coral */
+              50: '#fff1f1',
+              100: '#ffdfdf',
+              200: '#ffc5c5',
+              300: '#ff9d9d',
+              400: '#ff6b6b', // Main Coral
+              500: '#f85151',
+              600: '#e53e3e',
+              700: '#c53030',
+              800: '#9b2c2c',
+              900: '#742a2a',
+            },
+            accent: { /* Navy Blue / Dark Slate */
+              50: '#f8fafc',
+              100: '#f1f5f9',
+              200: '#e2e8f0',
+              300: '#cbd5e1',
+              400: '#94a3b8',
+              500: '#64748b',
+              600: '#475569',
+              700: '#334155',
+              800: '#1e293b',
+              900: '#0f172a', // Dark Navy
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #f4f5f6;
+      /* Very light grey off-white matching the RedBus background */
+      min-height: 100vh;
+      color: #3e3e52;
+      /* Dark grey text */
+    }
+
+    /* Premium scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 999px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    /* Micro-animation keyframes */
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-4px);
+      }
+    }
+
+    @keyframes pulse-glow {
+
+      0%,
+      100% {
+        box-shadow: 0 0 0 0 rgba(216, 78, 85, 0.4);
+      }
+
+      50% {
+        box-shadow: 0 0 15px 2px rgba(216, 78, 85, 0.2);
+      }
+    }
+
+    @keyframes shimmer {
+      0% {
+        background-position: -200% 0;
+      }
+
+      100% {
+        background-position: 200% 0;
+      }
+    }
+
+    .animate-float {
+      animation: float 4s ease-in-out infinite;
+    }
+
+    .animate-pulse-glow {
+      animation: pulse-glow 2.5s ease-in-out infinite;
+    }
+
+    .animate-shimmer {
+      background: linear-gradient(90deg, transparent 0%, rgba(245, 158, 11, 0.1) 50%, transparent 100%);
+      background-size: 200% 100%;
+      animation: shimmer 2.5s infinite;
+    }
+
+    /* High-Fidelity Glassmorphism effect */
+    .card-glass {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+      position: relative;
+    }
+
+    /* Hero Initials specific for the card backgrounds */
+    .hero-initials {
+      position: absolute;
+      right: 0px;
+      bottom: -20px;
+      font-size: 8rem;
+      font-weight: 800;
+      line-height: 1;
+      color: rgba(30, 41, 59, 0.03);
+      /* Extremely subtle dark navy tint */
+      user-select: none;
+      pointer-events: none;
+      z-index: 0;
+      letter-spacing: -4px;
+    }
+
+    /* Premium button glow */
+    .btn-glow {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-glow::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg,
+          transparent 30%,
+          rgba(255, 255, 255, 0.1) 50%,
+          transparent 70%);
+      transition: transform 0.6s ease-out;
+      transform: translateX(-100%);
+    }
+
+    .btn-glow:hover::after {
+      transform: translateX(100%);
+    }
+  </style>
+  <link rel="stylesheet" href="/index.css">
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+
+</html>
