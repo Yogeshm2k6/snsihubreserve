@@ -3,12 +3,13 @@ import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { getFirestore, collection, getDocs } from 'firebase/firestore';
 
 const firebaseConfig = {
-    apiKey: "AIzaSyBlDquM2SYMzQF6OxJqYhEh_34974xWsW8",
-    authDomain: "snsihub-96e48.firebaseapp.com",
-    projectId: "snsihub-96e48",
-    storageBucket: "snsihub-96e48.firebasestorage.app",
-    messagingSenderId: "1026657254187",
-    appId: "1:1026657254187:web:a395f44d216bf49d8b636e"
+    apiKey: "AIzaSyDZ8zynLAsplEtz5w9ZuVjHA-8dotpYWuw",
+    authDomain: "snsihub-48206.firebaseapp.com",
+    projectId: "snsihub-48206",
+    storageBucket: "snsihub-48206.firebasestorage.app",
+    messagingSenderId: "666818918105",
+    appId: "1:666818918105:web:6b0d0064600c3b9687b0c8",
+    measurementId: "G-MCQEHXBQ7Q"
 };
 
 console.log("Initializing Firebase with config...");

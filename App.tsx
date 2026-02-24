@@ -7,7 +7,7 @@ import { Login } from './components/Login';
 import { HALLS } from './constants';
 import { Hall, BookingFormData, ViewState, User, ApprovalStatus } from './types';
 import { Search, Filter, CheckCircle2 } from 'lucide-react';
-import { collection, onSnapshot, query, addDoc, deleteDoc, doc, updateDoc, orderBy } from 'firebase/firestore';
+import { collection, onSnapshot, query, addDoc, deleteDoc, doc, updateDoc, orderBy, where, getDocs, getDoc } from 'firebase/firestore';
 import { db, auth } from './lib/firebase';
 import { Toaster, toast } from 'react-hot-toast';
 
@@ -135,10 +135,32 @@ export default function App() {
 
       const emailBody = `A new booking request is awaiting your approval.\nStaff Name: ${data.bookedBy}\nRoom: ${data.hallName}\nDate: ${data.requiredDate}\nDepartment: ${data.department}\nClick the button below to Approve or Reject immediately.`;
 
-      // Notify All Admins Simultaneously
-      sendEmailNotification('admin_ic@snsgroups.com', 'IHUB Booking Approval Required (Admin I/C)', emailBody, docRef.id, 1);
-      sendEmailNotification('coordinator@snsgroups.com', 'IHUB Booking Approval Required (Coordinator)', emailBody, docRef.id, 2);
-      sendEmailNotification('head@snsgroups.com', 'IHUB Booking Approval Required (Head of Ops)', emailBody, docRef.id, 3);
+      // Fetch admin emails dynamically based on roles
+      const getAdminEmails = async (role: string) => {
+        const roleQuery = query(collection(db, 'users'), where('role', '==', role));
+        const roleSnapshot = await getDocs(roleQuery);
+        return roleSnapshot.docs.map(doc => doc.data().email as string);
+      };
+
+      const [adminIcEmails, coordinatorEmails, headOpsEmails] = await Promise.all([
+        getAdminEmails('admin_ic'),
+        getAdminEmails('coordinator'),
+        getAdminEmails('head_ops')
+      ]);
+
+      // Notify All Admins Simultaneously (with fallbacks if no user has the role yet)
+      const notifyAdmins = (emails: string[], fallbackEmail: string, title: string, docId: string, stage: number) => {
+        if (emails.length > 0) {
+          emails.forEach(email => sendEmailNotification(email, title, emailBody, docId, stage));
+        } else {
+          sendEmailNotification(fallbackEmail, title, emailBody, docId, stage);
+        }
+      };
+
+      notifyAdmins(adminIcEmails, 'admin_ic@snsgroups.com', 'IHUB Booking Approval Required (Admin I/C)', docRef.id, 1);
+      notifyAdmins(coordinatorEmails, 'coordinator@snsgroups.com', 'IHUB Booking Approval Required (Coordinator)', docRef.id, 2);
+      notifyAdmins(headOpsEmails, 'head@snsgroups.com', 'IHUB Booking Approval Required (Head of Ops)', docRef.id, 3);
+
 
       setCurrentView('SUCCESS');
       toast.success('Booking request submitted successfully!');
@@ -169,17 +191,30 @@ export default function App() {
       updates[stageKey] = status;
       updates[byKey] = user.name;
 
+      let staffEmail = 'staff@snsgroups.com';
+      try {
+        const bookingData = bookings.find(b => b.id === bookingId);
+        if (bookingData && bookingData.userId) {
+          const userSnap = await getDoc(doc(db, 'users', bookingData.userId));
+          if (userSnap.exists() && userSnap.data().email) {
+            staffEmail = userSnap.data().email;
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch staff email:', err);
+      }
+
       if (status === 'Rejected') {
         updates.status = 'Rejected';
         // Notify Staff of rejection
-        sendEmailNotification('staff@snsgroups.com', 'Booking Request Rejected', `Your booking request for ${bookingId} has been rejected at Stage ${stage}.`);
+        sendEmailNotification(staffEmail, 'Booking Request Rejected', `Your booking request for ${bookingId} has been rejected at Stage ${stage}.`);
       } else if (status === 'Approved') {
         if (stage === 3) {
           // If Head of Ops (Stage 3) approves, check if we want to mark the whole thing as approved.
           // Note for user: In a concurrent system, you might want to wait for ALL stages before marking final status,
           // but aligning with previous logic, Stage 3 is the ultimate decider.
           updates.status = 'Approved';
-          sendEmailNotification('staff@snsgroups.com', 'Booking Request Confirmed ✅', `Your booking request has been fully approved and confirmed!`);
+          sendEmailNotification(staffEmail, 'Booking Request Confirmed ✅', `Your booking request has been fully approved and confirmed!`);
         }
       }
 
@@ -286,6 +321,7 @@ export default function App() {
         return selectedHall ? (
           <BookingForm
             selectedHall={selectedHall}
+            existingBookings={bookings}
             onBack={() => setCurrentView('HOME')}
             onSubmit={handleBookingSubmit}
           />

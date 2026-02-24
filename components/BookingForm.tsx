@@ -5,11 +5,12 @@ import { INITIAL_FORM_STATE } from '../constants';
 
 interface BookingFormProps {
   selectedHall: Hall;
+  existingBookings: BookingFormData[];
   onBack: () => void;
   onSubmit: (data: BookingFormData) => void;
 }
 
-export const BookingForm: React.FC<BookingFormProps> = ({ selectedHall, onBack, onSubmit }) => {
+export const BookingForm: React.FC<BookingFormProps> = ({ selectedHall, existingBookings, onBack, onSubmit }) => {
   const [formData, setFormData] = useState<Partial<BookingFormData>>({
     ...INITIAL_FORM_STATE,
     hallId: selectedHall.id,
@@ -23,7 +24,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({ selectedHall, onBack, 
   const [availability, setAvailability] = useState<'idle' | 'checking' | 'available' | 'conflict'>('idle');
   const [conflictDetails, setConflictDetails] = useState<{ message: string, alternatives: string[] }>({ message: '', alternatives: [] });
 
-  // Simulate Availability Check when date/time/duration changes
+  // Real Availability Check
   useEffect(() => {
     const { requiredDate, startTime, duration } = formData;
 
@@ -34,24 +35,50 @@ export const BookingForm: React.FC<BookingFormProps> = ({ selectedHall, onBack, 
 
     setAvailability('checking');
 
-    // Simulate network request
-    const timer = setTimeout(() => {
-      // MOCK LOGIC: Simulate busy slots at 10:00, 10:30, and 11:00
-      const busyTimes = ['10:00', '10:30', '11:00'];
+    const parseDuration = (dur: string) => {
+      if (dur === '30 mins') return 30;
+      if (dur === '1 hour') return 60;
+      if (dur === '2 hours') return 120;
+      if (dur === '3 hours') return 180;
+      if (dur === 'Half Day') return 240;
+      if (dur === 'Full Day') return 480;
+      return 0;
+    };
 
-      if (busyTimes.includes(startTime)) {
+    const timeToMinutes = (timeStr: string) => {
+      const parts = timeStr.split(':');
+      if (parts.length !== 2) return 0;
+      return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+    };
+
+    const isOverlapping = (start1: string, dur1: string, start2: string, dur2: string) => {
+      const s1 = timeToMinutes(start1);
+      const e1 = s1 + parseDuration(dur1);
+      const s2 = timeToMinutes(start2);
+      const e2 = s2 + parseDuration(dur2);
+      return s1 < e2 && s2 < e1;
+    };
+
+    setTimeout(() => {
+      const conflictingBooking = existingBookings.find(b =>
+        b.hallId === selectedHall.id &&
+        b.requiredDate === requiredDate &&
+        b.status !== 'Rejected' &&
+        isOverlapping(startTime, duration, b.startTime, b.duration)
+      );
+
+      if (conflictingBooking) {
         setAvailability('conflict');
         setConflictDetails({
-          message: `${selectedHall.name} is already booked at ${startTime} on this date.`,
-          alternatives: ['09:00', '13:00', '15:30'] // Suggested alternatives
+          message: `This hall is already booked from ${conflictingBooking.startTime} for ${conflictingBooking.duration} on this date.`,
+          alternatives: [] // Could dynamically suggest alternatives, leaving empty for now
         });
       } else {
         setAvailability('available');
       }
-    }, 600); // 600ms delay for realism
+    }, 400); // 400ms delay to make it feel like a real check
 
-    return () => clearTimeout(timer);
-  }, [formData.requiredDate, formData.startTime, formData.duration, selectedHall.id]);
+  }, [formData.requiredDate, formData.startTime, formData.duration, selectedHall.id, existingBookings]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
@@ -435,8 +462,8 @@ export const BookingForm: React.FC<BookingFormProps> = ({ selectedHall, onBack, 
               type="submit"
               disabled={availability === 'conflict' || availability === 'checking'}
               className={`w-full sm:w-auto px-6 py-2.5 rounded-lg font-medium shadow-lg shadow-accent-500/30 transition-all transform hover:scale-[1.02] ${availability === 'conflict' || availability === 'checking'
-                  ? 'bg-gray-400 cursor-not-allowed text-gray-100 shadow-none'
-                  : 'bg-accent-500 text-white hover:bg-accent-600'
+                ? 'bg-gray-400 cursor-not-allowed text-gray-100 shadow-none'
+                : 'bg-accent-500 text-white hover:bg-accent-600'
                 }`}
             >
               Submit Reservation

@@ -51,7 +51,7 @@ app.post('/api/send-email', async (req, res) => {
 });
 
 // Catch-all route to serve the React app for any unmatched routes
-app.get('*', (req, res) => {
+app.use((req, res) => {
     res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
