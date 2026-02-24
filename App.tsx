@@ -24,21 +24,28 @@ export default function App() {
   useEffect(() => {
     try {
       const q = query(collection(db, 'halls'));
-      const unsubscribe = onSnapshot(q, (snapshot) => {
-        if (snapshot.empty) {
-          // Fallback to initial seed if DB is empty
+      const unsubscribe = onSnapshot(q,
+        (snapshot) => {
+          if (snapshot.empty) {
+            // Fallback to initial seed if DB is empty
+            setHalls(HALLS);
+          } else {
+            const allHalls = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Hall));
+            setHalls(allHalls);
+          }
+        },
+        (error) => {
+          console.error("Error fetching halls onSnapshot:", error);
+          // If it fails (e.g., due to permissions before login), fallback to constants
           setHalls(HALLS);
-        } else {
-          const allHalls = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Hall));
-          setHalls(allHalls);
         }
-      });
+      );
       return () => unsubscribe();
     } catch (err) {
       console.error("Error fetching halls:", err);
       setHalls(HALLS); // Fallback
     }
-  }, []);
+  }, [user?.uid]);
 
   useEffect(() => {
     if (!user?.uid) {
