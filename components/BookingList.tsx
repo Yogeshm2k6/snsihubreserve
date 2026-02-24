@@ -21,18 +21,26 @@ export const BookingList: React.FC<BookingListProps> = ({
   const [activeTab, setActiveTab] = useState<'pending' | 'history'>('pending');
 
   const pendingBookings = bookings.filter(b => {
-    if (user.role === 'staff') return b.userId === user.uid && b.status === 'Pending';
+    // Show user's own pending bookings
+    if (b.userId === user.uid && b.status === 'Pending') return true;
+
+    // Admin Approval Views
     if (user.role === 'admin_ic') return b.stage1_status === 'Pending' && b.status !== 'Rejected';
     if (user.role === 'coordinator') return b.stage2_status === 'Pending' && b.status !== 'Rejected';
     if (user.role === 'head_ops') return b.stage3_status === 'Pending' && b.status !== 'Rejected';
+
     return false;
   });
 
   const historyBookings = bookings.filter(b => {
-    if (user.role === 'staff') return b.userId === user.uid && b.status !== 'Pending';
+    // Show user's own completed/rejected bookings
+    if (b.userId === user.uid && b.status !== 'Pending') return true;
+
+    // Admin history (acted upon or globally rejected)
     if (user.role === 'admin_ic') return b.stage1_status !== 'Pending' || b.status === 'Rejected';
     if (user.role === 'coordinator') return b.stage2_status !== 'Pending' || b.status === 'Rejected';
     if (user.role === 'head_ops') return b.stage3_status !== 'Pending' || b.status === 'Rejected';
+
     return false;
   });
 
@@ -99,17 +107,15 @@ export const BookingList: React.FC<BookingListProps> = ({
 
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-accent-800">{user.role === 'staff' ? 'My Bookings' : 'Dashboard'}</h2>
-          <p className="text-sm text-gray-500 mt-1">Logged in as <span className="font-semibold text-accent-600">{user.name}</span> ({user.role})</p>
+          <h2 className="text-2xl font-bold text-gray-900">{user.role === 'staff' ? 'My Bookings' : 'Dashboard'}</h2>
+          <p className="text-sm text-gray-500 mt-1">Logged in as <span className="font-semibold text-brand-600">{user.name}</span> ({user.role})</p>
         </div>
-        {user.role === 'staff' && (
-          <button
-            onClick={onNewBooking}
-            className="btn-glow text-sm bg-accent-600 hover:bg-accent-700 text-white px-6 py-2.5 rounded-xl font-bold shadow-lg shadow-accent-600/25 transition-all duration-300 transform hover:-translate-y-0.5"
-          >
-            + New Booking
-          </button>
-        )}
+        <button
+          onClick={onNewBooking}
+          className="btn-glow text-sm bg-accent-500 hover:bg-accent-600 text-gray-900 px-6 py-2.5 rounded-xl font-bold shadow-lg shadow-accent-500/25 transition-all duration-300 transform hover:-translate-y-0.5"
+        >
+          + New Booking
+        </button>
       </div>
 
       <div className="flex space-x-1 border-b-2 border-brand-200 mb-6 pb-0">
@@ -146,11 +152,12 @@ export const BookingList: React.FC<BookingListProps> = ({
           displayBookings.map((booking) => (
             <div key={booking.id} className="card-glass group rounded-xl p-5 shadow-md hover:shadow-xl hover:shadow-accent-500/5 transition-all duration-300 relative overflow-hidden">
 
-              {user.role === 'staff' && booking.status === 'Pending' && (
+              {/* Show trash icon for staff OR if the admin is the creator of the exact booking */}
+              {(user.role === 'staff' || booking.userId === user.uid) && booking.status === 'Pending' && (
                 <div className="absolute top-6 right-6 hidden sm:block opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
                   <button
                     onClick={() => setConfirmId(booking.id || null)}
-                    className="p-2.5 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-all focus:outline-none focus:ring-2 focus:ring-gray-200"
+                    className="p-2.5 text-gray-400 hover:text-brand-600 hover:bg-brand-50 rounded-full transition-all focus:outline-none focus:ring-2 focus:ring-brand-200"
                     title="Cancel Booking"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -217,18 +224,18 @@ export const BookingList: React.FC<BookingListProps> = ({
                   </div>
                 </div>
 
-                {/* Admin Actions */}
-                {user.role !== 'staff' && activeTab === 'pending' && onUpdateStatus && booking.id && (
+                {/* Admin Actions (Cannot approve their own requests directly unless they are the intended stage approver... but let's allow standard flow) */}
+                {user.role !== 'staff' && activeTab === 'pending' && onUpdateStatus && booking.id && booking.userId !== user.uid && (
                   <div className="flex gap-2 w-full md:w-auto mt-4 md:mt-0">
                     <button
                       onClick={() => onUpdateStatus(booking.id!, currentStage as 1 | 2 | 3, 'Rejected')}
-                      className="flex-1 md:flex-none flex items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 bg-white hover:bg-gray-100 rounded-lg text-sm font-medium transition-colors"
+                      className="flex-1 md:flex-none flex items-center justify-center px-4 py-2 border border-brand-200 text-brand-700 bg-white hover:bg-brand-50 rounded-lg text-sm font-bold transition-colors"
                     >
                       <X className="w-4 h-4 mr-1.5" /> Reject
                     </button>
                     <button
                       onClick={() => onUpdateStatus(booking.id!, currentStage as 1 | 2 | 3, 'Approved')}
-                      className="btn-glow flex-1 md:flex-none flex items-center justify-center px-5 py-2.5 bg-accent-600 hover:bg-accent-700 text-white rounded-xl text-sm font-bold shadow-lg shadow-accent-600/25 transition-all"
+                      className="btn-glow flex-1 md:flex-none flex items-center justify-center px-5 py-2.5 bg-accent-500 hover:bg-accent-600 text-gray-900 rounded-xl text-sm font-bold shadow-lg shadow-accent-500/25 transition-all"
                     >
                       <Check className="w-4 h-4 mr-1.5" /> Approve
                     </button>
@@ -236,10 +243,10 @@ export const BookingList: React.FC<BookingListProps> = ({
                 )}
 
                 {/* Mobile Cancel Button */}
-                {user.role === 'staff' && booking.status === 'Pending' && (
+                {(user.role === 'staff' || booking.userId === user.uid) && booking.status === 'Pending' && (
                   <button
                     onClick={() => setConfirmId(booking.id || null)}
-                    className="md:hidden w-full flex justify-center items-center text-gray-700 text-sm font-medium px-4 py-2 border border-gray-300 bg-white rounded-lg active:bg-gray-100 mt-2"
+                    className="md:hidden w-full flex justify-center items-center text-brand-700 text-sm font-bold px-4 py-2 border border-brand-200 bg-brand-50 rounded-lg active:bg-brand-100 mt-2"
                   >
                     <Trash2 className="w-4 h-4 mr-2" /> Cancel Request
                   </button>
