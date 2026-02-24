@@ -11,8 +11,11 @@ import { collection, onSnapshot, query, addDoc, deleteDoc, doc, updateDoc, order
 import { db, auth } from './lib/firebase';
 import { Toaster, toast } from 'react-hot-toast';
 
+import { onAuthStateChanged } from 'firebase/auth';
+
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [halls, setHalls] = useState<Hall[]>([]);
   const [currentView, setCurrentView] = useState<ViewState>('HOME');
   const [selectedHall, setSelectedHall] = useState<Hall | null>(null);
@@ -46,6 +49,43 @@ export default function App() {
       setHalls(HALLS); // Fallback
     }
   }, [user?.uid]);
+
+  // Auth State Persistence & Check
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        // Fetch custom claims/role from Firestore
+        try {
+          const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            setUser({
+              uid: firebaseUser.uid,
+              email: firebaseUser.email || '',
+              name: userData.name || firebaseUser.displayName || 'Unknown',
+              role: userData.role || 'staff'
+            });
+          } else {
+            // Fallback if doc is missing somehow
+            setUser({
+              uid: firebaseUser.uid,
+              email: firebaseUser.email || '',
+              name: firebaseUser.displayName || 'User',
+              role: 'staff' // safe default
+            });
+          }
+        } catch (error) {
+          console.error("Error fetching user data on auth refresh:", error);
+          setUser(null);
+        }
+      } else {
+        setUser(null);
+      }
+      setIsAuthLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     if (!user?.uid) {
@@ -266,6 +306,17 @@ export default function App() {
       }
     }
   }, [user]); // Re-run when user changes (like after login)
+
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-brand-50">
+        <div className="flex flex-col items-center animate-pulse">
+          <div className="w-16 h-16 border-4 border-brand-200 border-t-brand-600 rounded-full animate-spin mb-4"></div>
+          <p className="text-brand-800 font-bold tracking-widest text-sm uppercase">Restoring Session...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!user) {
     return <Login onLogin={handleLogin} />;
