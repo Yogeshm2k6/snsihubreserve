@@ -132,13 +132,19 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
         return;
       }
 
-      // If they are in isSignUp mode, they might be overwriting their own role if it somehow already exists. 
+      // If they are in isSignUp mode, they might be overwriting their own role if it somehow already exists.
       // Safe to pass `selectedRole` forcefully or let the handleAuthSuccess prioritize the existing database role.
       await handleAuthSuccess(userEmail, result.user.displayName, result.user.uid, isSignUp ? selectedRole : undefined);
 
     } catch (err: any) {
       console.error(err);
-      toast.error(err.message || 'Failed to sign in with Google');
+      if (err.message && err.message.includes('missing initial state')) {
+        toast.error('Google Sign-In is blocked in this App or Browser (like Gmail Mobile). Please use Email/Password to sign in, or open this link directly in Chrome/Safari.', { duration: 8000 });
+      } else if (err.code === 'auth/popup-closed-by-user') {
+        toast.error('Sign in popup was closed. Please try again or use Email/Password.');
+      } else {
+        toast.error(err.message || 'Failed to sign in with Google');
+      }
     } finally {
       setIsLoading(false);
     }
