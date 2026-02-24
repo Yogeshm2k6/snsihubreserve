@@ -18,11 +18,11 @@ export const BookingList: React.FC<BookingListProps> = ({
   onUpdateStatus
 }) => {
   const [confirmId, setConfirmId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'pending' | 'history'>('pending');
+  const [activeTab, setActiveTab] = useState<'pending' | 'history' | 'myBookings'>('pending');
 
   const pendingBookings = bookings.filter(b => {
-    // Show user's own pending bookings
-    if (b.userId === user.uid && b.status === 'Pending') return true;
+    // Show user's own pending bookings only if staff. For admins, those go to myBookings tab.
+    if (user.role === 'staff' && b.userId === user.uid && b.status === 'Pending') return true;
 
     // Admin Approval Views
     if (user.role === 'admin_ic') return b.stage1_status === 'Pending' && b.status !== 'Rejected';
@@ -34,7 +34,7 @@ export const BookingList: React.FC<BookingListProps> = ({
 
   const historyBookings = bookings.filter(b => {
     // Show user's own completed/rejected bookings
-    if (b.userId === user.uid && b.status !== 'Pending') return true;
+    if (user.role === 'staff' && b.userId === user.uid && b.status !== 'Pending') return true;
 
     // Admin history (acted upon or globally rejected)
     if (user.role === 'admin_ic') return b.stage1_status !== 'Pending' || b.status === 'Rejected';
@@ -44,7 +44,9 @@ export const BookingList: React.FC<BookingListProps> = ({
     return false;
   });
 
-  const displayBookings = activeTab === 'pending' ? pendingBookings : historyBookings;
+  const myBookings = bookings.filter(b => b.userId === user.uid);
+
+  const displayBookings = activeTab === 'pending' ? pendingBookings : activeTab === 'history' ? historyBookings : myBookings;
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -118,7 +120,7 @@ export const BookingList: React.FC<BookingListProps> = ({
         </button>
       </div>
 
-      <div className="flex space-x-1 border-b-2 border-brand-200 mb-6 pb-0">
+      <div className="flex space-x-1 border-b-2 border-brand-200 mb-6 pb-0 overflow-x-auto whitespace-nowrap hide-scrollbar">
         <button
           onClick={() => setActiveTab('pending')}
           className={`px-5 py-3 text-sm font-bold transition-all duration-200 border-b-3 -mb-px rounded-t-lg ${activeTab === 'pending'
@@ -126,7 +128,7 @@ export const BookingList: React.FC<BookingListProps> = ({
             : 'text-gray-500 border-transparent hover:text-accent-600 hover:bg-brand-50'
             }`}
         >
-          Pending Requests ({pendingBookings.length})
+          {user.role === 'staff' ? 'Pending Requests' : 'Pending Approvals'} ({pendingBookings.length})
         </button>
         <button
           onClick={() => setActiveTab('history')}
@@ -135,8 +137,19 @@ export const BookingList: React.FC<BookingListProps> = ({
             : 'text-gray-500 border-transparent hover:text-accent-600 hover:bg-brand-50'
             }`}
         >
-          History ({historyBookings.length})
+          {user.role === 'staff' ? 'History' : 'Approval History'} ({historyBookings.length})
         </button>
+        {user.role !== 'staff' && (
+          <button
+            onClick={() => setActiveTab('myBookings')}
+            className={`px-5 py-3 text-sm font-bold transition-all duration-200 border-b-3 -mb-px rounded-t-lg ${activeTab === 'myBookings'
+              ? 'text-accent-700 border-accent-600 bg-accent-50'
+              : 'text-gray-500 border-transparent hover:text-accent-600 hover:bg-brand-50'
+              }`}
+          >
+            My Bookings ({myBookings.length})
+          </button>
+        )}
       </div>
 
       <div className="grid gap-6">
