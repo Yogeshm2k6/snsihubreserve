@@ -139,42 +139,60 @@
       animation: shimmer 2.5s infinite;
     }
 
-    /* Attractive Striped Gap Background */
+    /* Attractive Striped Background */
     .striped-pattern {
       background-color: #f1f5f9;
-      /* Slightly darker gray to make the white stripe pop */
+      /* Pattern: navy gap → 9 colors (white gaps between) → white gap → 9 colors (white gaps between) → repeat */
       background-image: repeating-linear-gradient(-45deg,
-          transparent,
-          transparent 50px,
-          rgba(239, 68, 68, 0.8) 50px,
-          /* Red */
-          rgba(239, 68, 68, 0.8) 58px,
-          /* 8px bold line */
-          transparent 58px,
-          transparent 68px,
-          /* 10px gap */
-          rgba(234, 179, 8, 0.8) 68px,
-          /* Yellow */
-          rgba(234, 179, 8, 0.8) 76px,
-          transparent 76px,
-          transparent 86px,
-          rgba(34, 197, 94, 0.8) 86px,
-          /* Green */
-          rgba(34, 197, 94, 0.8) 94px,
-          transparent 94px,
-          transparent 104px,
-          rgba(255, 255, 255, 1) 104px,
-          /* White */
-          rgba(255, 255, 255, 1) 112px,
-          transparent 112px,
-          transparent 122px,
-          rgba(59, 130, 246, 0.8) 122px,
-          /* Blue */
-          rgba(59, 130, 246, 0.8) 130px,
-          transparent 130px,
-          transparent 250px
-          /* Large gap before repeating the cluster */
-        );
+          /* Navy Blue gap */
+          #0f172a,
+          #0f172a 50px,
+
+          /* First 9-color cluster with white gaps between each */
+          #FECC00 50px, #FECC00 58px,
+          #ffffff 58px, #ffffff 64px,
+          #E31E24 64px, #E31E24 72px,
+          #ffffff 72px, #ffffff 78px,
+          #B0CB1F 78px, #B0CB1F 86px,
+          #ffffff 86px, #ffffff 92px,
+          #E5097F 92px, #E5097F 100px,
+          #ffffff 100px, #ffffff 106px,
+          #058D7A 106px, #058D7A 114px,
+          #ffffff 114px, #ffffff 120px,
+          #EF7F1A 120px, #EF7F1A 128px,
+          #ffffff 128px, #ffffff 134px,
+          #9298CB 134px, #9298CB 142px,
+          #ffffff 142px, #ffffff 148px,
+          #00A0E3 148px, #00A0E3 156px,
+          #ffffff 156px, #ffffff 162px,
+          #009846 162px, #009846 170px,
+
+          /* Large white gap */
+          #ffffff 170px,
+          #ffffff 220px,
+
+          /* Second 9-color cluster with white gaps between each */
+          #FECC00 220px, #FECC00 228px,
+          #ffffff 228px, #ffffff 234px,
+          #E31E24 234px, #E31E24 242px,
+          #ffffff 242px, #ffffff 248px,
+          #B0CB1F 248px, #B0CB1F 256px,
+          #ffffff 256px, #ffffff 262px,
+          #E5097F 262px, #E5097F 270px,
+          #ffffff 270px, #ffffff 276px,
+          #058D7A 276px, #058D7A 284px,
+          #ffffff 284px, #ffffff 290px,
+          #EF7F1A 290px, #EF7F1A 298px,
+          #ffffff 298px, #ffffff 304px,
+          #9298CB 304px, #9298CB 312px,
+          #ffffff 312px, #ffffff 318px,
+          #00A0E3 318px, #00A0E3 326px,
+          #ffffff 326px, #ffffff 332px,
+          #009846 332px, #009846 340px,
+
+          /* Navy Blue gap before repeating */
+          #0f172a 340px,
+          #0f172a 390px);
     }
 
     /* High-Fidelity Glassmorphism effect */
