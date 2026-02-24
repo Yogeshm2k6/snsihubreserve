@@ -150,8 +150,8 @@ export const BookingList: React.FC<BookingListProps> = ({
 
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">{user.role === 'staff' ? 'My Bookings' : 'Dashboard'}</h2>
-          <p className="text-sm text-gray-500 mt-1">Logged in as <span className="font-semibold text-brand-600">{user.name}</span> ({user.role})</p>
+          <h2 className="text-2xl font-bold text-white drop-shadow-md">{user.role === 'staff' ? 'My Bookings' : 'Dashboard'}</h2>
+          <p className="text-sm text-white/80 mt-1">Logged in as <span className="font-semibold text-yellow-300">{user.name}</span> ({user.role})</p>
         </div>
         <button
           onClick={onNewBooking}
@@ -166,7 +166,7 @@ export const BookingList: React.FC<BookingListProps> = ({
           onClick={() => setActiveTab('pending')}
           className={`px-5 py-3 text-sm font-bold transition-all duration-200 border-b-3 -mb-px rounded-t-lg ${activeTab === 'pending'
             ? 'text-accent-700 border-accent-600 bg-accent-50'
-            : 'text-gray-500 border-transparent hover:text-accent-600 hover:bg-brand-50'
+            : 'text-white/90 border-transparent hover:text-accent-300 hover:bg-white/10'
             }`}
         >
           {user.role === 'staff' ? 'Pending Requests' : 'Pending Approvals'} ({pendingBookings.length})
@@ -175,7 +175,7 @@ export const BookingList: React.FC<BookingListProps> = ({
           onClick={() => setActiveTab('history')}
           className={`px-5 py-3 text-sm font-bold transition-all duration-200 border-b-3 -mb-px rounded-t-lg ${activeTab === 'history'
             ? 'text-accent-700 border-accent-600 bg-accent-50'
-            : 'text-gray-500 border-transparent hover:text-accent-600 hover:bg-brand-50'
+            : 'text-white/90 border-transparent hover:text-accent-300 hover:bg-white/10'
             }`}
         >
           {user.role === 'staff' ? 'History' : 'Approval History'} ({historyBookings.length})
@@ -185,7 +185,7 @@ export const BookingList: React.FC<BookingListProps> = ({
             onClick={() => setActiveTab('myBookings')}
             className={`px-5 py-3 text-sm font-bold transition-all duration-200 border-b-3 -mb-px rounded-t-lg ${activeTab === 'myBookings'
               ? 'text-accent-700 border-accent-600 bg-accent-50'
-              : 'text-gray-500 border-transparent hover:text-accent-600 hover:bg-brand-50'
+              : 'text-white/90 border-transparent hover:text-accent-300 hover:bg-white/10'
               }`}
           >
             My Bookings ({myBookings.length})

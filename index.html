@@ -139,65 +139,65 @@
       animation: shimmer 2.5s infinite;
     }
 
-    /* Attractive Striped Background */
+    /* Clean Grey Background with Single Vertical Centre 9-Stripe Band */
+    /* Mobile: 20px wide stripes, 15px gaps. Total = 9*20+8*15 = 300px. Half = 150px */
     .striped-pattern {
-      background-color: #f1f5f9;
-      /* Pattern: navy gap → 9 colors (white gaps between) → white gap → 9 colors (white gaps between) → repeat */
-      background-image: repeating-linear-gradient(-45deg,
-          /* Navy Blue gap */
-          #0f172a,
-          #0f172a 50px,
+      background-color: #C0C0C0;
+      background-image: linear-gradient(to right,
+          #C0C0C0 0%,
+          #C0C0C0 calc(50% - 150px),
+          #FECC00 calc(50% - 150px), #FECC00 calc(50% - 130px),
+          #C0C0C0 calc(50% - 130px), #C0C0C0 calc(50% - 115px),
+          #E31E24 calc(50% - 115px), #E31E24 calc(50% - 95px),
+          #C0C0C0 calc(50% - 95px), #C0C0C0 calc(50% - 80px),
+          #B0CB1F calc(50% - 80px), #B0CB1F calc(50% - 60px),
+          #C0C0C0 calc(50% - 60px), #C0C0C0 calc(50% - 45px),
+          #E5097F calc(50% - 45px), #E5097F calc(50% - 25px),
+          #C0C0C0 calc(50% - 25px), #C0C0C0 calc(50% - 10px),
+          #058D7A calc(50% - 10px), #058D7A calc(50% + 10px),
+          #C0C0C0 calc(50% + 10px), #C0C0C0 calc(50% + 25px),
+          #EF7F1A calc(50% + 25px), #EF7F1A calc(50% + 45px),
+          #C0C0C0 calc(50% + 45px), #C0C0C0 calc(50% + 60px),
+          #9298CB calc(50% + 60px), #9298CB calc(50% + 80px),
+          #C0C0C0 calc(50% + 80px), #C0C0C0 calc(50% + 95px),
+          #00A0E3 calc(50% + 95px), #00A0E3 calc(50% + 115px),
+          #C0C0C0 calc(50% + 115px), #C0C0C0 calc(50% + 130px),
+          #009846 calc(50% + 130px), #009846 calc(50% + 150px),
+          #C0C0C0 calc(50% + 150px),
+          #C0C0C0 100%);
+    }
 
-          /* First 9-color cluster with white gaps between each */
-          #FECC00 50px, #FECC00 58px,
-          #ffffff 58px, #ffffff 64px,
-          #E31E24 64px, #E31E24 72px,
-          #ffffff 72px, #ffffff 78px,
-          #B0CB1F 78px, #B0CB1F 86px,
-          #ffffff 86px, #ffffff 92px,
-          #E5097F 92px, #E5097F 100px,
-          #ffffff 100px, #ffffff 106px,
-          #058D7A 106px, #058D7A 114px,
-          #ffffff 114px, #ffffff 120px,
-          #EF7F1A 120px, #EF7F1A 128px,
-          #ffffff 128px, #ffffff 134px,
-          #9298CB 134px, #9298CB 142px,
-          #ffffff 142px, #ffffff 148px,
-          #00A0E3 148px, #00A0E3 156px,
-          #ffffff 156px, #ffffff 162px,
-          #009846 162px, #009846 170px,
-
-          /* Large white gap */
-          #ffffff 170px,
-          #ffffff 220px,
-
-          /* Second 9-color cluster with white gaps between each */
-          #FECC00 220px, #FECC00 228px,
-          #ffffff 228px, #ffffff 234px,
-          #E31E24 234px, #E31E24 242px,
-          #ffffff 242px, #ffffff 248px,
-          #B0CB1F 248px, #B0CB1F 256px,
-          #ffffff 256px, #ffffff 262px,
-          #E5097F 262px, #E5097F 270px,
-          #ffffff 270px, #ffffff 276px,
-          #058D7A 276px, #058D7A 284px,
-          #ffffff 284px, #ffffff 290px,
-          #EF7F1A 290px, #EF7F1A 298px,
-          #ffffff 298px, #ffffff 304px,
-          #9298CB 304px, #9298CB 312px,
-          #ffffff 312px, #ffffff 318px,
-          #00A0E3 318px, #00A0E3 326px,
-          #ffffff 326px, #ffffff 332px,
-          #009846 332px, #009846 340px,
-
-          /* Navy Blue gap before repeating */
-          #0f172a 340px,
-          #0f172a 390px);
+    /* Laptop: 60px wide stripes, 80px gaps. Total = 9*60+8*80 = 1180px. Half = 590px */
+    @media (min-width: 768px) {
+      .striped-pattern {
+        background-image: linear-gradient(to right,
+            #C0C0C0 0%,
+            #C0C0C0 calc(50% - 590px),
+            #FECC00 calc(50% - 590px), #FECC00 calc(50% - 530px),
+            #C0C0C0 calc(50% - 530px), #C0C0C0 calc(50% - 450px),
+            #E31E24 calc(50% - 450px), #E31E24 calc(50% - 390px),
+            #C0C0C0 calc(50% - 390px), #C0C0C0 calc(50% - 310px),
+            #B0CB1F calc(50% - 310px), #B0CB1F calc(50% - 250px),
+            #C0C0C0 calc(50% - 250px), #C0C0C0 calc(50% - 170px),
+            #E5097F calc(50% - 170px), #E5097F calc(50% - 110px),
+            #C0C0C0 calc(50% - 110px), #C0C0C0 calc(50% - 30px),
+            #058D7A calc(50% - 30px), #058D7A calc(50% + 30px),
+            #C0C0C0 calc(50% + 30px), #C0C0C0 calc(50% + 110px),
+            #EF7F1A calc(50% + 110px), #EF7F1A calc(50% + 170px),
+            #C0C0C0 calc(50% + 170px), #C0C0C0 calc(50% + 250px),
+            #9298CB calc(50% + 250px), #9298CB calc(50% + 310px),
+            #C0C0C0 calc(50% + 310px), #C0C0C0 calc(50% + 390px),
+            #00A0E3 calc(50% + 390px), #00A0E3 calc(50% + 450px),
+            #C0C0C0 calc(50% + 450px), #C0C0C0 calc(50% + 530px),
+            #009846 calc(50% + 530px), #009846 calc(50% + 590px),
+            #C0C0C0 calc(50% + 590px),
+            #C0C0C0 100%);
+      }
     }
 
     /* High-Fidelity Glassmorphism effect */
     .card-glass {
-      background: rgba(255, 255, 255, 0.7);
+      background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       border-radius: 16px;
