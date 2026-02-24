@@ -347,8 +347,8 @@ export default function App() {
 
       case 'SUCCESS':
         return (
-          <div className="max-w-md mx-auto mt-12 card-glass p-8 rounded-2xl shadow-2xl text-center animate-float">
-            <div className="w-20 h-20 bg-gradient-to-br from-brand-400 to-brand-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-brand-500/30">
+          <div className="max-w-md mx-auto mt-12 card-glass p-8 rounded-2xl shadow-2xl text-center animate-float border border-gray-100">
+            <div className="w-20 h-20 bg-brand-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-brand-500/30">
               <CheckCircle2 className="w-10 h-10 text-accent-900" />
             </div>
             <h2 className="text-2xl font-bold text-accent-800 mb-2">Request Submitted!</h2>
@@ -358,7 +358,7 @@ export default function App() {
             <div className="flex flex-col gap-3">
               <button
                 onClick={() => setCurrentView('MY_BOOKINGS')}
-                className="btn-glow w-full bg-gradient-to-r from-accent-600 to-accent-500 hover:from-accent-500 hover:to-accent-400 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-accent-600/25"
+                className="btn-glow w-full bg-accent-600 hover:bg-accent-700 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-accent-600/25"
               >
                 View Status
               </button>

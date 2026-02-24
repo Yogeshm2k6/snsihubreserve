@@ -10,9 +10,9 @@ interface HallCardProps {
 export const HallCard: React.FC<HallCardProps> = ({ hall, onBook }) => {
   return (
     <div className="group card-glass shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden flex flex-col h-full transform hover:-translate-y-2">
-      <div className="relative h-52 overflow-hidden bg-gradient-to-br from-brand-500 to-accent-800">
+      <div className="relative h-52 overflow-hidden bg-brand-500">
         <span className="hero-initials">{hall.name.substring(0, 2).toUpperCase()}</span>
-        <div className="absolute inset-0 bg-gradient-to-t from-accent-900/40 to-transparent z-10"></div>
+        <div className="absolute inset-0 bg-accent-900/30 z-10"></div>
         {hall.imageUrl && (
           <img
             src={hall.imageUrl}

@@ -105,7 +105,7 @@ export const BookingList: React.FC<BookingListProps> = ({
         {user.role === 'staff' && (
           <button
             onClick={onNewBooking}
-            className="btn-glow text-sm bg-gradient-to-r from-accent-600 to-accent-500 hover:from-accent-500 hover:to-accent-400 text-white px-6 py-2.5 rounded-xl font-bold shadow-lg shadow-accent-600/25 transition-all duration-300 transform hover:-translate-y-0.5"
+            className="btn-glow text-sm bg-accent-600 hover:bg-accent-700 text-white px-6 py-2.5 rounded-xl font-bold shadow-lg shadow-accent-600/25 transition-all duration-300 transform hover:-translate-y-0.5"
           >
             + New Booking
           </button>
@@ -228,7 +228,7 @@ export const BookingList: React.FC<BookingListProps> = ({
                     </button>
                     <button
                       onClick={() => onUpdateStatus(booking.id!, currentStage as 1 | 2 | 3, 'Approved')}
-                      className="btn-glow flex-1 md:flex-none flex items-center justify-center px-5 py-2.5 bg-gradient-to-r from-accent-600 to-accent-500 text-white hover:from-accent-500 hover:to-accent-400 rounded-xl text-sm font-bold shadow-lg shadow-accent-600/25 transition-all"
+                      className="btn-glow flex-1 md:flex-none flex items-center justify-center px-5 py-2.5 bg-accent-600 hover:bg-accent-700 text-white rounded-xl text-sm font-bold shadow-lg shadow-accent-600/25 transition-all"
                     >
                       <Check className="w-4 h-4 mr-1.5" /> Approve
                     </button>
