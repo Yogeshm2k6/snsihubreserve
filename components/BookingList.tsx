@@ -318,74 +318,110 @@ export const BookingList: React.FC<BookingListProps> = ({
               </div>
 
               {/* Hidden Receipt Template for PDF Generation */}
-              <div id={`receipt-${booking.id}`} style={{ display: 'none', width: '800px', padding: '40px', backgroundColor: 'white', color: 'black', fontFamily: 'sans-serif' }}>
-                <div style={{ borderBottom: '2px solid #e5e7eb', paddingBottom: '20px', marginBottom: '30px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div>
-                    <h1 style={{ margin: 0, fontSize: '28px', color: '#111827' }}>SNS iHub Reserve</h1>
-                    <p style={{ margin: '5px 0 0 0', color: '#6b7280', fontSize: '14px' }}>Official Booking Receipt</p>
+              <div id={`receipt-${booking.id}`} style={{ display: 'none', width: '850px', padding: '0', backgroundColor: 'white', color: '#111827', fontFamily: "'Plus Jakarta Sans', sans-serif", border: '1px solid #e5e7eb', borderRadius: '16px', overflow: 'hidden' }}>
+
+                {/* Header Panel */}
+                <div style={{ backgroundColor: '#111827', padding: '40px 50px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '8px solid #facc15' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                    <div style={{ backgroundColor: 'white', padding: '12px', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}>
+                      <img src="/logo.png" alt="SNS Logo" style={{ height: '55px', objectFit: 'contain' }} />
+                    </div>
+                    <div>
+                      <h1 style={{ margin: 0, fontSize: '32px', color: '#ffffff', fontWeight: '800', letterSpacing: '-0.5px' }}>SNS iHub Reserve</h1>
+                      <p style={{ margin: '5px 0 0 0', color: '#9ca3af', fontSize: '15px' }}>Official Approved Booking Receipt</p>
+                    </div>
                   </div>
                   <div style={{ textAlign: 'right' }}>
-                    <span style={{ display: 'inline-block', padding: '6px 12px', backgroundColor: '#dcfce7', color: '#166534', border: '1px solid #bbf7d0', borderRadius: '999px', fontSize: '14px', fontWeight: 'bold' }}>
+                    <div style={{ display: 'inline-block', padding: '8px 16px', backgroundColor: '#facc15', color: '#854d0e', borderRadius: '6px', fontSize: '16px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}>
                       APPROVED
-                    </span>
-                    <p style={{ margin: '8px 0 0 0', fontSize: '12px', color: '#9ca3af' }}>ID: {booking.id}</p>
+                    </div>
+                    <p style={{ margin: '15px 0 0 0', fontSize: '13px', color: '#6b7280' }}>Receipt ID: <span style={{ color: '#d1d5db', fontFamily: 'monospace', fontSize: '14px' }}>{booking.id?.substring(0, 8).toUpperCase()}</span></p>
                   </div>
                 </div>
 
-                <div style={{ marginBottom: '30px' }}>
-                  <h2 style={{ fontSize: '18px', color: '#374151', marginBottom: '15px', borderBottom: '1px solid #f3f4f6', paddingBottom: '5px' }}>Event Details</h2>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
-                    <tbody>
-                      <tr><td style={{ padding: '8px 0', color: '#6b7280', width: '30%' }}>Hall Name:</td><td style={{ padding: '8px 0', fontWeight: 'bold' }}>{booking.hallName}</td></tr>
-                      <tr><td style={{ padding: '8px 0', color: '#6b7280' }}>Meeting Type:</td><td style={{ padding: '8px 0', fontWeight: 'bold' }}>{booking.meetingType}</td></tr>
-                      <tr><td style={{ padding: '8px 0', color: '#6b7280' }}>Date:</td><td style={{ padding: '8px 0', fontWeight: 'bold' }}>{new Date(booking.requiredDate).toLocaleDateString()}</td></tr>
-                      <tr><td style={{ padding: '8px 0', color: '#6b7280' }}>Time & Duration:</td><td style={{ padding: '8px 0', fontWeight: 'bold' }}>{booking.startTime} ({booking.duration})</td></tr>
-                      <tr><td style={{ padding: '8px 0', color: '#6b7280' }}>Participants (Max):</td><td style={{ padding: '8px 0', fontWeight: 'bold' }}>{booking.participants}</td></tr>
-                    </tbody>
-                  </table>
-                </div>
+                {/* Body Panel */}
+                <div style={{ padding: '50px', backgroundColor: '#f8fafc' }}>
 
-                <div style={{ marginBottom: '30px' }}>
-                  <h2 style={{ fontSize: '18px', color: '#374151', marginBottom: '15px', borderBottom: '1px solid #f3f4f6', paddingBottom: '5px' }}>Organizer Information</h2>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
-                    <tbody>
-                      <tr><td style={{ padding: '8px 0', color: '#6b7280', width: '30%' }}>Booked By:</td><td style={{ padding: '8px 0', fontWeight: 'bold' }}>{booking.bookedBy}</td></tr>
-                      <tr><td style={{ padding: '8px 0', color: '#6b7280' }}>Department:</td><td style={{ padding: '8px 0', fontWeight: 'bold' }}>{booking.department}</td></tr>
-                      <tr><td style={{ padding: '8px 0', color: '#6b7280' }}>Coordinator Name:</td><td style={{ padding: '8px 0', fontWeight: 'bold' }}>{booking.coordinatorName}</td></tr>
-                    </tbody>
-                  </table>
-                </div>
+                  <div style={{ display: 'flex', gap: '40px', marginBottom: '40px' }}>
+                    {/* Left Column - Event Details */}
+                    <div style={{ flex: 1, backgroundColor: 'white', padding: '30px', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '25px' }}>
+                        <span style={{ width: '6px', height: '24px', backgroundColor: '#facc15', marginRight: '12px', borderRadius: '3px' }}></span>
+                        <h2 style={{ fontSize: '22px', color: '#0f172a', margin: 0, fontWeight: '800' }}>Event Details</h2>
+                      </div>
+                      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '15px' }}>
+                        <tbody>
+                          <tr><td style={{ padding: '12px 0', color: '#64748b', width: '40%', borderBottom: '1px solid #f1f5f9' }}>Venue Room</td><td style={{ padding: '12px 0', fontWeight: '800', color: '#0f172a', borderBottom: '1px solid #f1f5f9', textAlign: 'right', fontSize: '16px' }}>{booking.hallName}</td></tr>
+                          <tr><td style={{ padding: '12px 0', color: '#64748b', borderBottom: '1px solid #f1f5f9' }}>Meeting Type</td><td style={{ padding: '12px 0', fontWeight: '600', color: '#334155', borderBottom: '1px solid #f1f5f9', textAlign: 'right' }}>{booking.meetingType}</td></tr>
+                          <tr><td style={{ padding: '12px 0', color: '#64748b', borderBottom: '1px solid #f1f5f9' }}>Scheduled Date</td><td style={{ padding: '12px 0', fontWeight: '700', color: '#0f172a', borderBottom: '1px solid #f1f5f9', textAlign: 'right' }}>{new Date(booking.requiredDate).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</td></tr>
+                          <tr><td style={{ padding: '12px 0', color: '#64748b', borderBottom: '1px solid #f1f5f9' }}>Time Schedule</td><td style={{ padding: '12px 0', fontWeight: '700', color: '#0f172a', borderBottom: '1px solid #f1f5f9', textAlign: 'right' }}>{booking.startTime} ({booking.duration})</td></tr>
+                          <tr><td style={{ padding: '12px 0', color: '#64748b' }}>Est. Participants</td><td style={{ padding: '12px 0', fontWeight: '700', color: '#0f172a', textAlign: 'right' }}>{booking.participants} People</td></tr>
+                        </tbody>
+                      </table>
+                    </div>
 
-                <div style={{ marginBottom: '40px' }}>
-                  <h2 style={{ fontSize: '18px', color: '#374151', marginBottom: '15px', borderBottom: '1px solid #f3f4f6', paddingBottom: '5px' }}>Required Facilities</h2>
-                  <div style={{ display: 'flex', gap: '15px', fontSize: '14px', flexWrap: 'wrap' }}>
-                    {booking.audioSystem && <span style={{ padding: '4px 8px', backgroundColor: '#f3f4f6', borderRadius: '4px' }}>Audio System</span>}
-                    {booking.projector && <span style={{ padding: '4px 8px', backgroundColor: '#f3f4f6', borderRadius: '4px' }}>Projector</span>}
-                    <span style={{ padding: '4px 8px', backgroundColor: '#f3f4f6', borderRadius: '4px' }}>AC: {booking.airConditioning}</span>
-                  </div>
-                  {booking.otherRequirements && (
-                    <p style={{ marginTop: '15px', fontSize: '14px', color: '#4b5563' }}><strong>Other Notes:</strong> {booking.otherRequirements}</p>
-                  )}
-                </div>
+                    {/* Right Column - Organizer Info & Facilities */}
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                      <div style={{ backgroundColor: 'white', padding: '25px 30px', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
+                          <span style={{ width: '4px', height: '20px', backgroundColor: '#facc15', marginRight: '10px', borderRadius: '2px' }}></span>
+                          <h2 style={{ fontSize: '18px', color: '#0f172a', margin: 0, fontWeight: '700' }}>Organizer Info</h2>
+                        </div>
+                        <div style={{ fontSize: '14px', lineHeight: '1.7' }}>
+                          <p style={{ margin: '0 0 10px 0', display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#64748b' }}>Booked By:</span> <strong style={{ color: '#0f172a' }}>{booking.bookedBy}</strong></p>
+                          <p style={{ margin: '0 0 10px 0', display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#64748b' }}>Department:</span> <strong style={{ color: '#334155' }}>{booking.department}</strong></p>
+                          <p style={{ margin: 0, display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#64748b' }}>Coordinator:</span> <strong style={{ color: '#334155' }}>{booking.coordinatorName}</strong></p>
+                        </div>
+                      </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '2px solid #e5e7eb', paddingTop: '20px', marginTop: '40px' }}>
-                  <div style={{ textAlign: 'center', width: '30%' }}>
-                    <p style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '40px' }}>Stage 1 Approver (Admin I/C)</p>
-                    <p style={{ margin: 0, fontWeight: 'bold', fontSize: '14px' }}>{booking.stage1_approved_by || 'Verified'}</p>
+                      <div style={{ backgroundColor: '#0f172a', padding: '25px 30px', borderRadius: '16px', color: 'white', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }}>
+                        <h2 style={{ fontSize: '15px', color: '#facc15', margin: '0 0 15px 0', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px' }}>Facilities Requested</h2>
+                        <div style={{ display: 'flex', gap: '10px', fontSize: '13px', flexWrap: 'wrap', fontWeight: '600' }}>
+                          {booking.audioSystem && <span style={{ padding: '6px 12px', backgroundColor: '#1e293b', borderRadius: '6px', border: '1px solid #334155' }}>Audio System</span>}
+                          {booking.projector && <span style={{ padding: '6px 12px', backgroundColor: '#1e293b', borderRadius: '6px', border: '1px solid #334155' }}>Projector</span>}
+                          <span style={{ padding: '6px 12px', backgroundColor: '#1e293b', borderRadius: '6px', border: '1px solid #334155' }}>AC: {booking.airConditioning}</span>
+                        </div>
+                        {booking.otherRequirements && (
+                          <div style={{ marginTop: '15px', paddingTop: '15px', borderTop: '1px solid #334155', fontSize: '13px', color: '#cbd5e1', lineHeight: '1.5' }}>
+                            <strong style={{ color: 'white' }}>Notes:</strong> {booking.otherRequirements}
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                  <div style={{ textAlign: 'center', width: '30%' }}>
-                    <p style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '40px' }}>Stage 2 Approver (Coordinator)</p>
-                    <p style={{ margin: 0, fontWeight: 'bold', fontSize: '14px' }}>{booking.stage2_approved_by || 'Approved'}</p>
-                  </div>
-                  <div style={{ textAlign: 'center', width: '30%' }}>
-                    <p style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '40px' }}>Stage 3 Approver (Head of Ops)</p>
-                    <p style={{ margin: 0, fontWeight: 'bold', fontSize: '14px' }}>{booking.stage3_approved_by || 'Signed'}</p>
-                  </div>
-                </div>
 
-                <div style={{ marginTop: '50px', textAlign: 'center', fontSize: '12px', color: '#9ca3af' }}>
-                  <p>This is a computer generated receipt and does not require a physical signature.</p>
-                  <p>Generated on: {new Date().toLocaleString()}</p>
+                  {/* Signatures Panel */}
+                  <div style={{ backgroundColor: 'white', padding: '30px 40px', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}>
+                    <h2 style={{ fontSize: '14px', color: '#64748b', margin: '0 0 25px 0', textAlign: 'center', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: '700' }}>Official Verifications</h2>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <div style={{ textAlign: 'center', flex: 1 }}>
+                        <div style={{ color: '#f59e0b', fontSize: '28px', fontWeight: 'bold', fontFamily: 'cursive', marginBottom: '8px', opacity: 0.9, transform: 'rotate(-5deg)' }}>Verified</div>
+                        <div style={{ borderTop: '2px dashed #cbd5e1', margin: '0 20px', paddingTop: '12px' }}>
+                          <p style={{ margin: 0, fontWeight: '800', fontSize: '15px', color: '#0f172a' }}>{booking.stage1_approved_by || 'Admin'}</p>
+                          <p style={{ fontSize: '12px', color: '#64748b', margin: '4px 0 0 0', fontWeight: '600' }}>Admin I/C</p>
+                        </div>
+                      </div>
+                      <div style={{ textAlign: 'center', flex: 1 }}>
+                        <div style={{ color: '#10b981', fontSize: '28px', fontWeight: 'bold', fontFamily: 'cursive', marginBottom: '8px', opacity: 0.9, transform: 'rotate(-2deg)' }}>Approved</div>
+                        <div style={{ borderTop: '2px dashed #cbd5e1', margin: '0 20px', paddingTop: '12px' }}>
+                          <p style={{ margin: 0, fontWeight: '800', fontSize: '15px', color: '#0f172a' }}>{booking.stage2_approved_by || 'Coord'}</p>
+                          <p style={{ fontSize: '12px', color: '#64748b', margin: '4px 0 0 0', fontWeight: '600' }}>Coordinator</p>
+                        </div>
+                      </div>
+                      <div style={{ textAlign: 'center', flex: 1 }}>
+                        <div style={{ color: '#0ea5e9', fontSize: '28px', fontWeight: 'bold', fontFamily: 'cursive', marginBottom: '8px', opacity: 0.9, transform: 'rotate(-4deg)' }}>Signed</div>
+                        <div style={{ borderTop: '2px dashed #cbd5e1', margin: '0 20px', paddingTop: '12px' }}>
+                          <p style={{ margin: 0, fontWeight: '800', fontSize: '15px', color: '#0f172a' }}>{booking.stage3_approved_by || 'HO'}</p>
+                          <p style={{ fontSize: '12px', color: '#64748b', margin: '4px 0 0 0', fontWeight: '600' }}>Head of Ops</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{ marginTop: '40px', textAlign: 'center', fontSize: '12px', color: '#94a3b8', fontWeight: '500' }}>
+                    <p style={{ margin: '0 0 4px 0' }}>This is a computer-generated confirmation receipt and is valid for entry.</p>
+                    <p style={{ margin: 0 }}>Generated automatically on {new Date().toLocaleString()}</p>
+                  </div>
                 </div>
               </div>
 

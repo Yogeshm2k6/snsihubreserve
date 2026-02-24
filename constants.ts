@@ -10,7 +10,7 @@ export const HALLS: Hall[] = [
     capacity: 15,
     description: 'Executive meeting space with premium seating.',
     amenities: ['Conference Table', 'AC', 'Projector'],
-    imageUrl: '/hall pics/boardroom.jpg'
+    imageUrl: '/hall pics/Boardroom.JPG'
   },
   {
     id: '2',
@@ -19,7 +19,7 @@ export const HALLS: Hall[] = [
     capacity: 50,
     description: 'Versatile space for workshops and technical training.',
     amenities: ['Whiteboard', 'Flexible Seating'],
-    imageUrl: '/hall pics/traning_grage.jpg'
+    imageUrl: '/hall pics/Training Garage.JPG'
   },
   // 2nd Floor
   {
@@ -29,7 +29,7 @@ export const HALLS: Hall[] = [
     capacity: 35,
     description: 'Open area designed for collaborative brainstorming.',
     amenities: ['Casual Seating', 'Wifi'],
-    imageUrl: '/hall pics/Huddle_Space.jpg'
+    imageUrl: '/hall pics/Huddle space.JPG'
   },
   {
     id: '4',
@@ -38,7 +38,7 @@ export const HALLS: Hall[] = [
     capacity: 24,
     description: 'Tiered seating for presentations and lectures.',
     amenities: ['Stage', 'Acoustic Treatment'],
-    imageUrl: '/hall pics/amphi_Thearte.jpg'
+    imageUrl: '/hall pics/Amphi theater.JPG'
   },
   {
     id: '5',
@@ -56,7 +56,7 @@ export const HALLS: Hall[] = [
     capacity: 180,
     description: 'Large capacity hall for major events and seminars.',
     amenities: ['Sound System', 'Dual Projectors', 'Stage'],
-    imageUrl: '/hall pics/Training_Hall_2.jpg'
+    imageUrl: '/hall pics/Training Hall - 2.JPG'
   },
   {
     id: '7',
@@ -65,7 +65,7 @@ export const HALLS: Hall[] = [
     capacity: 35,
     description: 'Standard training room for lectures.',
     amenities: ['Desks', 'Whiteboard'],
-    imageUrl: '/hall pics/Training_Hall_1.jpg'
+    imageUrl: '/hall pics/Training Hall 1.JPG'
   },
   {
     id: '8',
@@ -74,7 +74,7 @@ export const HALLS: Hall[] = [
     capacity: 65,
     description: 'Central gathering space for medium-sized events.',
     amenities: ['Flexible Layout'],
-    imageUrl: '/hall pics/Square.jpg'
+    imageUrl: '/hall pics/Square.JPG'
   },
   {
     id: '9',
@@ -83,7 +83,7 @@ export const HALLS: Hall[] = [
     capacity: 12,
     description: 'Private room for faculty coaching and mentoring.',
     amenities: ['Private', 'Round Table'],
-    imageUrl: '/hall pics/Teachers_Coaching_Room.jpg'
+    imageUrl: '/hall pics/Teachers Coaching room.JPG'
   },
 ];
 

@@ -429,7 +429,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col font-sans text-gray-900 selection:bg-accent-500 selection:text-white">
+    <div className="min-h-screen flex flex-col font-sans text-gray-900 selection:bg-accent-500 selection:text-white striped-pattern">
       <Toaster position="top-center" reverseOrder={false} />
       <Navbar
         currentView={currentView}
