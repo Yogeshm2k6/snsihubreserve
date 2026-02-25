@@ -2,6 +2,7 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import { initializeFirestore } from 'firebase/firestore';
+import { getStorage } from 'firebase/storage';
 import { getMessaging, getToken, onMessage } from 'firebase/messaging';
 
 // Your web app's Firebase configuration
@@ -25,6 +26,7 @@ export const db = initializeFirestore(app, {
 
 // Initialize Cloud Messaging and get a reference to the service
 export const messaging = typeof window !== 'undefined' ? getMessaging(app) : null;
+export const storage = getStorage(app);
 
 export const requestNotificationPermission = async () => {
     if (!messaging) return null;

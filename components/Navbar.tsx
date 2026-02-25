@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutGrid, CalendarDays, LogOut, User as UserIcon } from 'lucide-react';
+import { LayoutGrid, CalendarDays, LogOut, User as UserIcon, Settings } from 'lucide-react';
 import { ViewState, User } from '../types';
 
 interface NavbarProps {
@@ -44,6 +44,19 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, setView, user, onLo
                   <CalendarDays className="w-4 h-4 mr-2" />
                   My Bookings
                 </button>
+
+                {(user.role === 'admin_ic' || user.role === 'coordinator' || user.role === 'head_ops') && (
+                  <button
+                    onClick={() => setView('HALL_CONFIG')}
+                    className={`flex items-center px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${currentView === 'HALL_CONFIG'
+                      ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20'
+                      : 'text-accent-300 hover:text-white hover:bg-accent-800'
+                      }`}
+                  >
+                    <Settings className="w-4 h-4 mr-2" />
+                    Config
+                  </button>
+                )}
               </div>
 
               <div className="h-8 w-px bg-accent-500/50 hidden sm:block"></div>
@@ -86,6 +99,15 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, setView, user, onLo
           <CalendarDays className="w-6 h-6" />
           <span className="text-[10px] font-bold uppercase tracking-wider mt-0.5">Bookings</span>
         </button>
+        {(user.role === 'admin_ic' || user.role === 'coordinator' || user.role === 'head_ops') && (
+          <button
+            onClick={() => setView('HALL_CONFIG')}
+            className={`flex flex-col items-center gap-1 p-2 transition-all duration-300 ${currentView === 'HALL_CONFIG' ? 'text-brand-400 scale-110 drop-shadow-md' : 'text-accent-500 hover:text-accent-400'}`}
+          >
+            <Settings className="w-6 h-6" />
+            <span className="text-[10px] font-bold uppercase tracking-wider mt-0.5">Config</span>
+          </button>
+        )}
       </div>
     </>
   );

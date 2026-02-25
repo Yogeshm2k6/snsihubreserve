@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { HallCard } from './components/HallCard';
 import { BookingForm } from './components/BookingForm';
+import { HallConfig } from './components/HallConfig';
 import { BookingList } from './components/BookingList';
 import { Login } from './components/Login';
 import { HALLS } from './constants';
@@ -421,6 +422,11 @@ export default function App() {
               </button>
             </div>
           </div>
+        );
+
+      case 'HALL_CONFIG':
+        return (
+          <HallConfig halls={halls} />
         );
 
       default:

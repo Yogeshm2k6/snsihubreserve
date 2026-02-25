@@ -46,4 +46,4 @@ export interface User {
   uid?: string;
 }
 
-export type ViewState = 'HOME' | 'BOOKING_FORM' | 'MY_BOOKINGS' | 'SUCCESS';
+export type ViewState = 'HOME' | 'BOOKING_FORM' | 'MY_BOOKINGS' | 'SUCCESS' | 'HALL_CONFIG';
