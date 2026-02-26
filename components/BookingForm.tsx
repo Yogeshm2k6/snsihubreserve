@@ -24,6 +24,8 @@ export const BookingForm: React.FC<BookingFormProps> = ({ selectedHall, existing
   const [availability, setAvailability] = useState<'idle' | 'checking' | 'available' | 'conflict'>('idle');
   const [conflictDetails, setConflictDetails] = useState<{ message: string, alternatives: string[] }>({ message: '', alternatives: [] });
 
+  const [agreementAccepted, setAgreementAccepted] = useState(false);
+
   // Real Availability Check
   useEffect(() => {
     const { requiredDate, startTime, duration } = formData;
@@ -127,6 +129,10 @@ export const BookingForm: React.FC<BookingFormProps> = ({ selectedHall, existing
     // Block if still checking
     if (availability === 'checking') {
       newErrors.submit = "Checking availability...";
+    }
+
+    if (!agreementAccepted) {
+      newErrors.agreement = "You must accept the agreement terms";
     }
 
     setErrors(newErrors);
@@ -448,6 +454,37 @@ export const BookingForm: React.FC<BookingFormProps> = ({ selectedHall, existing
                 placeholder="Any special arrangement or additional notes..."
               ></textarea>
             </div>
+          </div>
+
+          {/* Agreement Terms */}
+          <div className="pt-4">
+            <label className="flex items-start cursor-pointer group">
+              <div className="flex-shrink-0 mt-0.5">
+                <input
+                  type="checkbox"
+                  checked={agreementAccepted}
+                  onChange={(e) => {
+                    setAgreementAccepted(e.target.checked);
+                    if (e.target.checked && errors.agreement) {
+                      setErrors(prev => {
+                        const newErrors = { ...prev };
+                        delete newErrors.agreement;
+                        return newErrors;
+                      });
+                    }
+                  }}
+                  className={`w-4 h-4 rounded text-brand-600 focus:ring-brand-500 transition-colors ${errors.agreement ? 'border-gray-500 ring-1 ring-gray-500' : 'border-gray-300'}`}
+                />
+              </div>
+              <div className="ml-3">
+                <p className={`text-sm ${errors.agreement ? 'text-gray-900 font-medium' : 'text-gray-700'}`}>
+                  By using this hall, you agree to restore all items to their original positions, properly arrange the furniture, switch off all electrical equipment (lights, fans, projectors, AC), and leave the hall clean and free of waste after the program.
+                </p>
+                {errors.agreement && (
+                  <p className="mt-1 text-xs text-gray-600 font-medium">{errors.agreement}</p>
+                )}
+              </div>
+            </label>
           </div>
 
           <div className="pt-6 flex flex-col-reverse sm:flex-row items-center justify-end gap-3 sm:gap-4 border-t border-gray-100">
