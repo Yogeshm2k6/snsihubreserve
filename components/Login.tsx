@@ -19,9 +19,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const validateEmail = (email: string) => {
-    // const domain = email.split('@')[1]?.toLowerCase();
-    // return domain === 'snsgroups.com' || domain === 'ihub.com';
-    return true; // Temporarily allow all domains for testing
+    return email.toLowerCase().endsWith('@snsgroups.com');
   };
 
   const handleAuthSuccess = async (userEmail: string | null, userName: string | null, uid: string, signUpRole?: UserRole) => {
@@ -67,7 +65,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
     e.preventDefault();
 
     if (!validateEmail(email)) {
-      toast.error('Access restricted: Please use an @snsgroups.com or @ihub.com email address.');
+      toast.error('Access restricted: Please use an @snsgroups.com email address.');
       return;
     }
 
@@ -116,7 +114,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
       if (!validateEmail(userEmail)) {
         await auth.signOut();
-        toast.error('Access restricted: Please use an @snsgroups.com or @ihub.com email address.');
+        toast.error('Access restricted: Please use an @snsgroups.com email address.');
         setIsLoading(false);
         return;
       }
