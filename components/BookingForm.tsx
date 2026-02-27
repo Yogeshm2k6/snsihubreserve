@@ -20,11 +20,88 @@ export const BookingForm: React.FC<BookingFormProps> = ({ selectedHall, existing
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // Custom Time Picking State
+  const [timeState, setTimeState] = useState({
+    hour: '09',
+    minute: '00',
+    period: 'AM'
+  });
+
   // Availability Simulation State
   const [availability, setAvailability] = useState<'idle' | 'checking' | 'available' | 'conflict'>('idle');
   const [conflictDetails, setConflictDetails] = useState<{ message: string, alternatives: string[] }>({ message: '', alternatives: [] });
 
   const [agreementAccepted, setAgreementAccepted] = useState(false);
+
+  // Get today's date in YYYY-MM-DD format for min date validation
+  const today = new Date().toISOString().split('T')[0];
+
+  // Calculate max date (2 years from today) to prevent infinite 5+ digit year typing
+  const [yearStr, monthStr, dayStr] = today.split('-');
+  const maxDate = `${parseInt(yearStr) + 2}-${monthStr}-${dayStr}`;
+
+  // Get current time in HH:MM format for min time validation if today is selected
+  const now = new Date();
+  const currentTimeString = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+
+  // Generate 30-minute intervals in 12-hour format for the time dropdown
+  const generateTimeOptions = () => {
+    const options = [];
+    for (let h = 0; h < 24; h++) {
+      for (let m = 0; m < 60; m += 30) {
+        const val = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+        const ampm = h >= 12 ? 'PM' : 'AM';
+        const displayH = h % 12 === 0 ? 12 : h % 12;
+        const display = `${displayH.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')} ${ampm}`;
+        options.push({ value: val, display });
+      }
+    }
+    return options;
+  };
+
+  // Set initial startTime format specifically when component mounts
+  useEffect(() => {
+    if (selectedHall && !formData.startTime) {
+      // Initialize internal formData.startTime from timeState so we have a valid required field
+      const parsedHour = parseInt(timeState.hour);
+      let militaryHour = parsedHour;
+      if (timeState.period === 'PM' && parsedHour < 12) militaryHour += 12;
+      if (timeState.period === 'AM' && parsedHour === 12) militaryHour = 0;
+
+      const newStartTime = `${militaryHour.toString().padStart(2, '0')}:${timeState.minute}`;
+      setFormData(prev => ({ ...prev, startTime: newStartTime }));
+    }
+  }, []);
+
+  // Sync custom time inputs with the master formData.startTime
+  const handleTimeChange = (field: 'hour' | 'minute' | 'period', val: string) => {
+    setTimeState(prev => {
+      const newState = { ...prev, [field]: val };
+
+      // Convert to military HH:mm for the formData master state
+      const hourNum = parseInt(newState.hour);
+      let militaryHour = hourNum;
+
+      if (newState.period === 'PM' && hourNum < 12) {
+        militaryHour += 12;
+      } else if (newState.period === 'AM' && hourNum === 12) {
+        militaryHour = 0;
+      }
+
+      const newStartTime = `${militaryHour.toString().padStart(2, '0')}:${newState.minute}`;
+
+      setFormData(fData => {
+        const updated = { ...fData, startTime: newStartTime };
+        // clear error if taking action
+        if (errors.startTime) {
+          setErrors(errs => { const newErrors = { ...errs }; delete newErrors.startTime; return newErrors; });
+        }
+        return updated;
+      });
+
+      return newState;
+    });
+  };
 
   // Real Availability Check
   useEffect(() => {
@@ -116,6 +193,23 @@ export const BookingForm: React.FC<BookingFormProps> = ({ selectedHall, existing
     if (!formData.duration) newErrors.duration = "Duration is required";
     if (!formData.coordinatorName) newErrors.coordinatorName = "Coordinator Name is required";
     if (!formData.bookedBy) newErrors.bookedBy = "Your Name is required";
+
+    // Date & Time Logic Validation
+    if (formData.requiredDate) {
+      if (formData.requiredDate < today) {
+        newErrors.requiredDate = "Cannot book in the past";
+      } else if (formData.requiredDate > maxDate) {
+        newErrors.requiredDate = "Date is too far in the future";
+      } else {
+        const year = formData.requiredDate.split('-')[0];
+        if (year && year.length > 4) {
+          newErrors.requiredDate = "Invalid year";
+        }
+      }
+    }
+    if (formData.requiredDate === today && formData.startTime && formData.startTime < currentTimeString) {
+      newErrors.startTime = "Cannot select a past time";
+    }
 
     // Basic participant validation
     if (formData.participants && formData.participants > selectedHall.capacity) {
@@ -267,7 +361,10 @@ export const BookingForm: React.FC<BookingFormProps> = ({ selectedHall, existing
                 <input
                   type="date"
                   name="requiredDate"
+                  min={today}
+                  max={maxDate}
                   value={formData.requiredDate}
+                  onClick={(e) => (e.currentTarget as any).showPicker?.()}
                   onChange={handleChange}
                   className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all ${errors.requiredDate ? 'border-gray-500 ring-1 ring-gray-500' : 'border-gray-300'}`}
                 />
@@ -295,14 +392,35 @@ export const BookingForm: React.FC<BookingFormProps> = ({ selectedHall, existing
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Start Time *
                 </label>
-                <input
-                  type="time"
-                  name="startTime"
-                  value={formData.startTime}
-                  onChange={handleChange}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all ${errors.startTime || availability === 'conflict' ? 'border-gray-500 ring-1 ring-gray-500' : 'border-gray-300'}`}
-                />
+                <div className="flex items-center gap-2">
+                  <select
+                    value={timeState.hour}
+                    onChange={(e) => handleTimeChange('hour', e.target.value)}
+                    className={`flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all ${errors.startTime || availability === 'conflict' ? 'border-gray-500 ring-1 ring-gray-500' : 'border-gray-300'}`}
+                  >
+                    {Array.from({ length: 12 }, (_, i) => (i + 1).toString().padStart(2, '0')).map(h => <option key={h} value={h}>{h}</option>)}
+                  </select>
+                  <span className="text-gray-500 font-bold">:</span>
+                  <select
+                    value={timeState.minute}
+                    onChange={(e) => handleTimeChange('minute', e.target.value)}
+                    className={`flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all ${errors.startTime || availability === 'conflict' ? 'border-gray-500 ring-1 ring-gray-500' : 'border-gray-300'}`}
+                  >
+                    {Array.from({ length: 60 }, (_, i) => i.toString().padStart(2, '0')).map(m => <option key={m} value={m}>{m}</option>)}
+                  </select>
+                  <select
+                    value={timeState.period}
+                    onChange={(e) => handleTimeChange('period', e.target.value)}
+                    className={`flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all bg-gray-50 ${errors.startTime || availability === 'conflict' ? 'border-gray-500 ring-1 ring-gray-500' : 'border-gray-300'}`}
+                  >
+                    <option value="AM">AM</option>
+                    <option value="PM">PM</option>
+                  </select>
+                </div>
                 {errors.startTime && <p className="mt-1 text-xs text-gray-600 font-medium">{errors.startTime}</p>}
+                {(formData.requiredDate === today && formData.startTime && formData.startTime < currentTimeString) && (
+                  <p className="mt-1 text-xs text-red-500 font-medium">Selected time has already passed.</p>
+                )}
               </div>
 
               <div>

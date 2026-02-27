@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutGrid, CalendarDays, LogOut, User as UserIcon, Settings } from 'lucide-react';
+import { LayoutGrid, CalendarDays, LogOut, User as UserIcon, Settings, Trash2 } from 'lucide-react';
 import { ViewState, User } from '../types';
 
 interface NavbarProps {
@@ -7,9 +7,10 @@ interface NavbarProps {
   setView: (view: ViewState) => void;
   user: User;
   onLogout: () => void;
+  onDeleteAccount: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ currentView, setView, user, onLogout }) => {
+export const Navbar: React.FC<NavbarProps> = ({ currentView, setView, user, onLogout, onDeleteAccount }) => {
   return (
     <>
       <nav className="sticky top-0 z-50 bg-accent-900 border-b border-accent-800 shadow-2xl">
@@ -76,6 +77,14 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, setView, user, onLo
                   title="Log Out"
                 >
                   <LogOut className="w-5 h-5" />
+                </button>
+
+                <button
+                  onClick={onDeleteAccount}
+                  className="p-2.5 text-red-400/80 hover:text-red-500 hover:bg-red-500/10 rounded-full transition-all duration-300"
+                  title="Delete Account"
+                >
+                  <Trash2 className="w-5 h-5" />
                 </button>
               </div>
             </div>

@@ -130,6 +130,38 @@ export default function App() {
     setCurrentView('HOME');
   };
 
+  const handleDeleteAccount = async () => {
+    if (!user || (!auth.currentUser)) return;
+
+    // Warn the user before proceeding
+    const isConfirmed = window.confirm(
+      "Are you sure you want to delete your account? This action cannot be undone and you will lose access to the system."
+    );
+
+    if (!isConfirmed) return;
+
+    try {
+      // 1. Delete user document from Firestore (so they don't persist in the system)
+      await deleteDoc(doc(db, 'users', user.uid));
+
+      // 2. Delete the user from Firebase Auth
+      await auth.currentUser.delete();
+
+      // 3. Clear local state and log out
+      setUser(null);
+      setCurrentView('HOME');
+      toast.success("Account deleted successfully.");
+
+    } catch (error: any) {
+      console.error("Error deleting account:", error);
+      if (error.code === 'auth/requires-recent-login') {
+        toast.error("For security reasons, please log out and log back in before deleting your account.", { duration: 6000 });
+      } else {
+        toast.error("Failed to delete account. Please try again or contact support.");
+      }
+    }
+  };
+
   const handleBookClick = (hall: Hall) => {
     setSelectedHall(hall);
     setCurrentView('BOOKING_FORM');
@@ -442,6 +474,7 @@ export default function App() {
         setView={setCurrentView}
         user={user}
         onLogout={handleLogout}
+        onDeleteAccount={handleDeleteAccount}
       />
 
       <main className="flex-grow">
