@@ -252,8 +252,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                       <option value="staff">Staff (Booking Requests)</option>
                       <optgroup label="Admin Roles">
                         <option value="admin_ic">Admin I/C (Stage 1 Approver)</option>
-                        <option value="coordinator">Coordinator (Stage 2 Approver)</option>
-                        <option value="head_ops">Head of Operations (Stage 3 Approver)</option>
+                        <option value="head_ops">Head of Operations (Stage 2 Approver)</option>
                       </optgroup>
                     </select>
                   </div>

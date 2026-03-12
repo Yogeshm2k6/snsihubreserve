@@ -9,7 +9,7 @@ interface BookingListProps {
   user: User;
   onNewBooking: () => void;
   onCancelBooking: (id: string) => void;
-  onUpdateStatus?: (id: string, stage: 1 | 2 | 3, status: ApprovalStatus) => void;
+  onUpdateStatus?: (id: string, stage: 1 | 2, status: ApprovalStatus) => void;
 }
 
 export const BookingList: React.FC<BookingListProps> = ({
@@ -28,8 +28,7 @@ export const BookingList: React.FC<BookingListProps> = ({
 
     // Admin Approval Views
     if (user.role === 'admin_ic') return b.stage1_status === 'Pending' && b.status !== 'Rejected';
-    if (user.role === 'coordinator') return b.stage2_status === 'Pending' && b.status !== 'Rejected';
-    if (user.role === 'head_ops') return b.stage3_status === 'Pending' && b.status !== 'Rejected';
+    if (user.role === 'head_ops') return b.stage2_status === 'Pending' && b.status !== 'Rejected';
 
     return false;
   });
@@ -40,8 +39,7 @@ export const BookingList: React.FC<BookingListProps> = ({
 
     // Admin history (acted upon or globally rejected)
     if (user.role === 'admin_ic') return b.stage1_status !== 'Pending' || b.status === 'Rejected';
-    if (user.role === 'coordinator') return b.stage2_status !== 'Pending' || b.status === 'Rejected';
-    if (user.role === 'head_ops') return b.stage3_status !== 'Pending' || b.status === 'Rejected';
+    if (user.role === 'head_ops') return b.stage2_status !== 'Pending' || b.status === 'Rejected';
 
     return false;
   });
@@ -66,7 +64,7 @@ export const BookingList: React.FC<BookingListProps> = ({
     }
   };
 
-  const currentStage = user.role === 'admin_ic' ? 1 : user.role === 'coordinator' ? 2 : user.role === 'head_ops' ? 3 : 0;
+  const currentStage = user.role === 'admin_ic' ? 1 : user.role === 'head_ops' ? 2 : 0;
 
   const downloadReceipt = async (booking: BookingFormData) => {
     const elementId = `receipt-${booking.id}`;
@@ -257,7 +255,7 @@ export const BookingList: React.FC<BookingListProps> = ({
               </div>
 
               <div className="pt-4 border-t border-gray-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div className="grid grid-cols-3 gap-2 w-full md:flex md:flex-wrap md:gap-6 text-xs text-gray-400 md:w-auto text-center md:text-left">
+                <div className="grid grid-cols-2 gap-2 w-full md:flex md:flex-wrap md:gap-6 text-xs text-gray-400 md:w-auto text-center md:text-left">
                   <div className="flex flex-col gap-1 items-center md:items-start bg-gray-50 md:bg-transparent p-2 md:p-0 rounded-lg">
                     <span className="uppercase tracking-wider font-semibold text-[10px] md:text-xs">Admin I/C</span>
                     <span className={booking.stage1_status === 'Approved' ? 'text-gray-900 font-bold' : booking.stage1_status === 'Rejected' ? 'text-gray-400 line-through font-medium' : 'text-gray-500'}>
@@ -265,30 +263,23 @@ export const BookingList: React.FC<BookingListProps> = ({
                     </span>
                   </div>
                   <div className="flex flex-col gap-1 items-center md:items-start bg-gray-50 md:bg-transparent p-2 md:p-0 rounded-lg">
-                    <span className="uppercase tracking-wider font-semibold text-[10px] md:text-xs">Coordinator</span>
-                    <span className={booking.stage2_status === 'Approved' ? 'text-gray-900 font-bold' : booking.stage2_status === 'Rejected' ? 'text-gray-400 line-through font-medium' : 'text-gray-500'}>
-                      {booking.stage2_status === 'Approved' ? 'Approved' : booking.stage2_status === 'Rejected' ? 'Rejected' : 'Pending'}
-                    </span>
-                  </div>
-                  <div className="flex flex-col gap-1 items-center md:items-start bg-gray-50 md:bg-transparent p-2 md:p-0 rounded-lg">
                     <span className="uppercase tracking-wider font-semibold text-[10px] md:text-xs">Head of Ops</span>
-                    <span className={booking.stage3_status === 'Approved' ? 'text-gray-900 font-bold' : booking.stage3_status === 'Rejected' ? 'text-gray-400 line-through font-medium' : 'text-gray-500'}>
-                      {booking.stage3_status === 'Approved' ? 'Signed' : booking.stage3_status === 'Rejected' ? 'Rejected' : 'Pending'}
+                    <span className={booking.stage2_status === 'Approved' ? 'text-gray-900 font-bold' : booking.stage2_status === 'Rejected' ? 'text-gray-400 line-through font-medium' : 'text-gray-500'}>
+                      {booking.stage2_status === 'Approved' ? 'Signed' : booking.stage2_status === 'Rejected' ? 'Rejected' : 'Pending'}
                     </span>
                   </div>
                 </div>
 
-                {/* Admin Actions (Cannot approve their own requests directly unless they are the intended stage approver... but let's allow standard flow) */}
-                {user.role !== 'staff' && activeTab === 'pending' && onUpdateStatus && booking.id && booking.userId !== user.uid && (
+                {user.role !== 'staff' && activeTab === 'pending' && onUpdateStatus && booking.id && (
                   <div className="flex gap-2 w-full md:w-auto mt-4 md:mt-0">
                     <button
-                      onClick={() => onUpdateStatus(booking.id!, currentStage as 1 | 2 | 3, 'Rejected')}
+                      onClick={() => onUpdateStatus(booking.id!, currentStage as 1 | 2, 'Rejected')}
                       className="flex-1 md:flex-none flex items-center justify-center px-4 py-2 border border-brand-200 text-brand-700 bg-white hover:bg-brand-50 rounded-lg text-sm font-bold transition-colors"
                     >
                       <X className="w-4 h-4 mr-1.5" /> Reject
                     </button>
                     <button
-                      onClick={() => onUpdateStatus(booking.id!, currentStage as 1 | 2 | 3, 'Approved')}
+                      onClick={() => onUpdateStatus(booking.id!, currentStage as 1 | 2, 'Approved')}
                       className="btn-glow flex-1 md:flex-none flex items-center justify-center px-5 py-2.5 bg-accent-500 hover:bg-accent-600 text-gray-900 rounded-xl text-sm font-bold shadow-lg shadow-accent-500/25 transition-all"
                     >
                       <Check className="w-4 h-4 mr-1.5" /> Approve
@@ -393,27 +384,44 @@ export const BookingList: React.FC<BookingListProps> = ({
                   {/* Signatures Panel */}
                   <div style={{ backgroundColor: 'white', padding: '30px 40px', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}>
                     <h2 style={{ fontSize: '14px', color: '#64748b', margin: '0 0 25px 0', textAlign: 'center', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: '700' }}>Official Verifications</h2>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 40px' }}>
                       <div style={{ textAlign: 'center', flex: 1 }}>
-                        <div style={{ color: '#f59e0b', fontSize: '28px', fontWeight: 'bold', fontFamily: 'cursive', marginBottom: '8px', opacity: 0.9, transform: 'rotate(-5deg)' }}>Verified</div>
-                        <div style={{ borderTop: '2px dashed #cbd5e1', margin: '0 20px', paddingTop: '12px' }}>
-                          <p style={{ margin: 0, fontWeight: '800', fontSize: '15px', color: '#0f172a' }}>{booking.stage1_approved_by || 'Admin'}</p>
-                          <p style={{ fontSize: '12px', color: '#64748b', margin: '4px 0 0 0', fontWeight: '600' }}>Admin I/C</p>
-                        </div>
+                        {booking.stage1_status === 'Approved' ? (
+                          <>
+                            <div style={{ color: '#f59e0b', fontSize: '28px', fontWeight: 'bold', fontFamily: 'cursive', marginBottom: '8px', opacity: 0.9, transform: 'rotate(-5deg)' }}>Verified</div>
+                            <div style={{ borderTop: '2px dashed #cbd5e1', margin: '0 20px', paddingTop: '12px' }}>
+                              <p style={{ margin: 0, fontWeight: '800', fontSize: '15px', color: '#0f172a' }}>{booking.stage1_approved_by || 'Admin'}</p>
+                              <p style={{ fontSize: '12px', color: '#64748b', margin: '4px 0 0 0', fontWeight: '600' }}>Admin I/C</p>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div style={{ color: '#9ca3af', fontSize: '16px', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '20px', marginTop: '10px' }}>Not Verified</div>
+                            <div style={{ borderTop: '2px dashed #e5e7eb', margin: '0 20px', paddingTop: '12px' }}>
+                              <p style={{ margin: 0, fontWeight: '800', fontSize: '15px', color: '#9ca3af' }}>Pending</p>
+                              <p style={{ fontSize: '12px', color: '#9ca3af', margin: '4px 0 0 0', fontWeight: '600' }}>Admin I/C</p>
+                            </div>
+                          </>
+                        )}
                       </div>
                       <div style={{ textAlign: 'center', flex: 1 }}>
-                        <div style={{ color: '#10b981', fontSize: '28px', fontWeight: 'bold', fontFamily: 'cursive', marginBottom: '8px', opacity: 0.9, transform: 'rotate(-2deg)' }}>Approved</div>
-                        <div style={{ borderTop: '2px dashed #cbd5e1', margin: '0 20px', paddingTop: '12px' }}>
-                          <p style={{ margin: 0, fontWeight: '800', fontSize: '15px', color: '#0f172a' }}>{booking.stage2_approved_by || 'Coord'}</p>
-                          <p style={{ fontSize: '12px', color: '#64748b', margin: '4px 0 0 0', fontWeight: '600' }}>Coordinator</p>
-                        </div>
-                      </div>
-                      <div style={{ textAlign: 'center', flex: 1 }}>
-                        <div style={{ color: '#0ea5e9', fontSize: '28px', fontWeight: 'bold', fontFamily: 'cursive', marginBottom: '8px', opacity: 0.9, transform: 'rotate(-4deg)' }}>Signed</div>
-                        <div style={{ borderTop: '2px dashed #cbd5e1', margin: '0 20px', paddingTop: '12px' }}>
-                          <p style={{ margin: 0, fontWeight: '800', fontSize: '15px', color: '#0f172a' }}>{booking.stage3_approved_by || 'HO'}</p>
-                          <p style={{ fontSize: '12px', color: '#64748b', margin: '4px 0 0 0', fontWeight: '600' }}>Head of Ops</p>
-                        </div>
+                        {booking.stage2_status === 'Approved' ? (
+                          <>
+                            <div style={{ color: '#0ea5e9', fontSize: '28px', fontWeight: 'bold', fontFamily: 'cursive', marginBottom: '8px', opacity: 0.9, transform: 'rotate(-4deg)' }}>Signed</div>
+                            <div style={{ borderTop: '2px dashed #cbd5e1', margin: '0 20px', paddingTop: '12px' }}>
+                              <p style={{ margin: 0, fontWeight: '800', fontSize: '15px', color: '#0f172a' }}>{booking.stage2_approved_by || 'HO'}</p>
+                              <p style={{ fontSize: '12px', color: '#64748b', margin: '4px 0 0 0', fontWeight: '600' }}>Head of Ops</p>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div style={{ color: '#9ca3af', fontSize: '16px', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '20px', marginTop: '10px' }}>Not Signed</div>
+                            <div style={{ borderTop: '2px dashed #e5e7eb', margin: '0 20px', paddingTop: '12px' }}>
+                              <p style={{ margin: 0, fontWeight: '800', fontSize: '15px', color: '#9ca3af' }}>Pending</p>
+                              <p style={{ fontSize: '12px', color: '#9ca3af', margin: '4px 0 0 0', fontWeight: '600' }}>Head of Ops</p>
+                            </div>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>

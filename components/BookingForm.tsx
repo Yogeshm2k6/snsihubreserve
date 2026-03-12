@@ -27,6 +27,28 @@ export const BookingForm: React.FC<BookingFormProps> = ({ selectedHall, existing
     period: 'AM'
   });
 
+  // Custom Duration State
+  const [durationState, setDurationState] = useState(() => {
+    // If there's an existing duration in formData, try to parse it
+    let initialHours = '1';
+    let initialMinutes = '0';
+    if (formData.duration) {
+      if (formData.duration === '30 mins') { initialHours = '0'; initialMinutes = '30'; }
+      else if (formData.duration === '1 hour') { initialHours = '1'; initialMinutes = '0'; }
+      else if (formData.duration === '2 hours') { initialHours = '2'; initialMinutes = '0'; }
+      else if (formData.duration === '3 hours') { initialHours = '3'; initialMinutes = '0'; }
+      else if (formData.duration === 'Half Day') { initialHours = '4'; initialMinutes = '0'; }
+      else if (formData.duration === 'Full Day') { initialHours = '8'; initialMinutes = '0'; }
+      else {
+        const hrsMatch = formData.duration.match(/(\d+)\s*hour/i);
+        const minsMatch = formData.duration.match(/(\d+)\s*min/i);
+        if (hrsMatch) initialHours = hrsMatch[1];
+        if (minsMatch) initialMinutes = minsMatch[1];
+      }
+    }
+    return { hours: initialHours, minutes: initialMinutes };
+  });
+
   // Availability Simulation State
   const [availability, setAvailability] = useState<'idle' | 'checking' | 'available' | 'conflict'>('idle');
   const [conflictDetails, setConflictDetails] = useState<{ message: string, alternatives: string[] }>({ message: '', alternatives: [] });
@@ -69,7 +91,18 @@ export const BookingForm: React.FC<BookingFormProps> = ({ selectedHall, existing
       if (timeState.period === 'AM' && parsedHour === 12) militaryHour = 0;
 
       const newStartTime = `${militaryHour.toString().padStart(2, '0')}:${timeState.minute}`;
-      setFormData(prev => ({ ...prev, startTime: newStartTime }));
+
+      let newDuration = formData.duration;
+      if (!newDuration) {
+        const hrs = parseInt(durationState.hours || '0', 10);
+        const mins = parseInt(durationState.minutes || '0', 10);
+        newDuration = '';
+        if (hrs > 0) newDuration += `${hrs} ${hrs === 1 ? 'hour' : 'hours'} `;
+        if (mins > 0) newDuration += `${mins} mins`;
+        newDuration = newDuration.trim();
+      }
+
+      setFormData(prev => ({ ...prev, startTime: newStartTime, duration: newDuration || '1 hour' }));
     }
   }, []);
 
@@ -103,6 +136,33 @@ export const BookingForm: React.FC<BookingFormProps> = ({ selectedHall, existing
     });
   };
 
+  // Sync custom duration inputs with the master formData.duration
+  const handleDurationChange = (field: 'hours' | 'minutes', val: string) => {
+    if (val !== '' && (!/^\d+$/.test(val) || parseInt(val) < 0)) return;
+
+    setDurationState(prev => {
+      const newState = { ...prev, [field]: val };
+
+      const hrs = parseInt(newState.hours || '0', 10);
+      const mins = parseInt(newState.minutes || '0', 10);
+
+      let newDuration = '';
+      if (hrs > 0) newDuration += `${hrs} ${hrs === 1 ? 'hour' : 'hours'} `;
+      if (mins > 0) newDuration += `${mins} mins`;
+      newDuration = newDuration.trim();
+
+      setFormData(fData => {
+        const updated = { ...fData, duration: newDuration };
+        if (errors.duration && newDuration) {
+          setErrors(errs => { const newErrors = { ...errs }; delete newErrors.duration; return newErrors; });
+        }
+        return updated;
+      });
+
+      return newState;
+    });
+  };
+
   // Real Availability Check
   useEffect(() => {
     const { requiredDate, startTime, duration } = formData;
@@ -115,13 +175,22 @@ export const BookingForm: React.FC<BookingFormProps> = ({ selectedHall, existing
     setAvailability('checking');
 
     const parseDuration = (dur: string) => {
+      if (!dur) return 0;
       if (dur === '30 mins') return 30;
       if (dur === '1 hour') return 60;
       if (dur === '2 hours') return 120;
       if (dur === '3 hours') return 180;
       if (dur === 'Half Day') return 240;
       if (dur === 'Full Day') return 480;
-      return 0;
+
+      let totalMins = 0;
+      const hrsMatch = dur.match(/(\d+)\s*hour/i);
+      const minsMatch = dur.match(/(\d+)\s*min/i);
+
+      if (hrsMatch) totalMins += parseInt(hrsMatch[1], 10) * 60;
+      if (minsMatch) totalMins += parseInt(minsMatch[1], 10);
+
+      return totalMins;
     };
 
     const timeToMinutes = (timeStr: string) => {
@@ -427,20 +496,32 @@ export const BookingForm: React.FC<BookingFormProps> = ({ selectedHall, existing
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Duration *
                 </label>
-                <select
-                  name="duration"
-                  value={formData.duration}
-                  onChange={handleChange}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all ${errors.duration ? 'border-gray-500 ring-1 ring-gray-500' : 'border-gray-300'}`}
-                >
-                  <option value="">Select duration</option>
-                  <option value="30 mins">30 mins</option>
-                  <option value="1 hour">1 hour</option>
-                  <option value="2 hours">2 hours</option>
-                  <option value="3 hours">3 hours</option>
-                  <option value="Half Day">Half Day (4 hours)</option>
-                  <option value="Full Day">Full Day (8 hours)</option>
-                </select>
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <div className="flex-1 relative">
+                    <input
+                      type="number"
+                      min="0"
+                      value={durationState.hours}
+                      onChange={(e) => handleDurationChange('hours', e.target.value)}
+                      className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all pr-10 sm:pr-12 ${errors.duration ? 'border-gray-500 ring-1 ring-gray-500' : 'border-gray-300'}`}
+                      placeholder="0"
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none">hrs</span>
+                  </div>
+                  <span className="text-gray-500 font-bold">:</span>
+                  <div className="flex-1 relative">
+                    <input
+                      type="number"
+                      min="0"
+                      max="59"
+                      value={durationState.minutes}
+                      onChange={(e) => handleDurationChange('minutes', e.target.value)}
+                      className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all pr-12 sm:pr-14 ${errors.duration ? 'border-gray-500 ring-1 ring-gray-500' : 'border-gray-300'}`}
+                      placeholder="0"
+                    />
+                    <span className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none">mins</span>
+                  </div>
+                </div>
                 {errors.duration && <p className="mt-1 text-xs text-gray-600 font-medium">{errors.duration}</p>}
               </div>
             </div>

@@ -186,8 +186,7 @@ export default function App() {
         `;
       }
 
-      const apiUrl = import.meta.env.VITE_API_URL || window.location.origin;
-      const response = await fetch(`${apiUrl}/api/send-email`, {
+      const response = await fetch('/api/send-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ to, subject, html: htmlContent })
@@ -210,7 +209,6 @@ export default function App() {
         status: 'Pending',
         stage1_status: 'Pending',
         stage2_status: 'Pending',
-        stage3_status: 'Pending',
       });
 
       const emailBody = `A new booking request is awaiting your approval.\nStaff Name: ${data.bookedBy}\nRoom: ${data.hallName}\nDate: ${data.requiredDate}\nDepartment: ${data.department}\nClick the button below to Approve or Reject immediately.`;
@@ -222,9 +220,8 @@ export default function App() {
         return roleSnapshot.docs.map(doc => doc.data().email as string);
       };
 
-      const [adminIcEmails, coordinatorEmails, headOpsEmails] = await Promise.all([
+      const [adminIcEmails, headOpsEmails] = await Promise.all([
         getAdminEmails('admin_ic'),
-        getAdminEmails('coordinator'),
         getAdminEmails('head_ops')
       ]);
 
@@ -238,8 +235,7 @@ export default function App() {
       };
 
       notifyAdmins(adminIcEmails, 'admin_ic@snsgroups.com', 'IHUB Booking Approval Required (Admin I/C)', docRef.id, 1);
-      notifyAdmins(coordinatorEmails, 'coordinator@snsgroups.com', 'IHUB Booking Approval Required (Coordinator)', docRef.id, 2);
-      notifyAdmins(headOpsEmails, 'head@snsgroups.com', 'IHUB Booking Approval Required (Head of Ops)', docRef.id, 3);
+      notifyAdmins(headOpsEmails, 'head@snsgroups.com', 'IHUB Booking Approval Required (Head of Ops)', docRef.id, 2);
 
 
       setCurrentView('SUCCESS');
@@ -258,7 +254,7 @@ export default function App() {
     }
   };
 
-  const handleUpdateBookingStatus = async (bookingId: string, stage: 1 | 2 | 3, status: ApprovalStatus) => {
+  const handleUpdateBookingStatus = async (bookingId: string, stage: 1 | 2, status: ApprovalStatus) => {
     if (!user) return;
 
     try {
@@ -289,13 +285,9 @@ export default function App() {
         // Notify Staff of rejection
         sendEmailNotification(staffEmail, 'Booking Request Rejected', `Your booking request for ${bookingId} has been rejected at Stage ${stage}.`);
       } else if (status === 'Approved') {
-        if (stage === 3) {
-          // If Head of Ops (Stage 3) approves, check if we want to mark the whole thing as approved.
-          // Note for user: In a concurrent system, you might want to wait for ALL stages before marking final status,
-          // but aligning with previous logic, Stage 3 is the ultimate decider.
-          updates.status = 'Approved';
-          sendEmailNotification(staffEmail, 'Booking Request Confirmed ✅', `Your booking request has been fully approved and confirmed!`);
-        }
+        // If either Admin I/C or Head of Ops approve, mark the whole thing as approved.
+        updates.status = 'Approved';
+        sendEmailNotification(staffEmail, 'Booking Request Confirmed ✅', `Your booking request has been fully approved and confirmed!`);
       }
 
       await updateDoc(bookingRef, updates);
@@ -319,8 +311,8 @@ export default function App() {
 
     if (action && id && stageStr && user) {
       const stage = parseInt(stageStr, 10);
-      if ([1, 2, 3].includes(stage) && (action === 'approve' || action === 'reject')) {
-        const requiredRole = stage === 1 ? 'admin_ic' : stage === 2 ? 'coordinator' : 'head_ops';
+      if ([1, 2].includes(stage) && (action === 'approve' || action === 'reject')) {
+        const requiredRole = stage === 1 ? 'admin_ic' : 'head_ops';
 
         // Prevent unauthorized processing and loop blocking
         if (user.role !== requiredRole) {
@@ -331,7 +323,7 @@ export default function App() {
 
         const status: ApprovalStatus = action === 'approve' ? 'Approved' : 'Rejected';
 
-        handleUpdateBookingStatus(id, stage as 1 | 2 | 3, status).then(() => {
+        handleUpdateBookingStatus(id, stage as 1 | 2, status).then(() => {
           window.history.replaceState({}, document.title, window.location.pathname);
           setCurrentView('MY_BOOKINGS');
           toast.success(`Request magically ${status.toLowerCase()} via email link! ✨`, { duration: 6000 });

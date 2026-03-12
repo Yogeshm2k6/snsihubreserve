@@ -1,4 +1,4 @@
-export type UserRole = 'staff' | 'admin_ic' | 'coordinator' | 'head_ops';
+export type UserRole = 'staff' | 'admin_ic' | 'head_ops';
 
 export interface Hall {
   id: string;
@@ -34,8 +34,6 @@ export interface BookingFormData {
   stage1_approved_by?: string;
   stage2_status: ApprovalStatus;
   stage2_approved_by?: string;
-  stage3_status: ApprovalStatus;
-  stage3_approved_by?: string;
   submittedAt: string;
 }
 

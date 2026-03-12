@@ -46,7 +46,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, setView, user, onLo
                   My Bookings
                 </button>
 
-                {(user.role === 'admin_ic' || user.role === 'coordinator' || user.role === 'head_ops') && (
+                {(user.role === 'admin_ic' || user.role === 'head_ops') && (
                   <button
                     onClick={() => setView('HALL_CONFIG')}
                     className={`flex items-center px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${currentView === 'HALL_CONFIG'
@@ -108,7 +108,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, setView, user, onLo
           <CalendarDays className="w-6 h-6" />
           <span className="text-[10px] font-bold uppercase tracking-wider mt-0.5">Bookings</span>
         </button>
-        {(user.role === 'admin_ic' || user.role === 'coordinator' || user.role === 'head_ops') && (
+        {(user.role === 'admin_ic' || user.role === 'head_ops') && (
           <button
             onClick={() => setView('HALL_CONFIG')}
             className={`flex flex-col items-center gap-1 p-2 transition-all duration-300 ${currentView === 'HALL_CONFIG' ? 'text-brand-400 scale-110 drop-shadow-md' : 'text-accent-500 hover:text-accent-400'}`}
