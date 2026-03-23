@@ -220,12 +220,9 @@ export default function App() {
         return roleSnapshot.docs.map(doc => doc.data().email as string);
       };
 
-      const [adminIcEmails, headOpsEmails] = await Promise.all([
-        getAdminEmails('admin_ic'),
-        getAdminEmails('head_ops')
-      ]);
+      const adminIcEmails = await getAdminEmails('admin_ic');
 
-      // Notify All Admins Simultaneously (with fallbacks if no user has the role yet)
+      // Notify Admin I/C (with fallbacks if no user has the role yet)
       const notifyAdmins = (emails: string[], fallbackEmail: string, title: string, docId: string, stage: number) => {
         if (emails.length > 0) {
           emails.forEach(email => sendEmailNotification(email, title, emailBody, docId, stage));
@@ -235,7 +232,6 @@ export default function App() {
       };
 
       notifyAdmins(adminIcEmails, 'admin_ic@snsgroups.com', 'IHUB Booking Approval Required (Admin I/C)', docRef.id, 1);
-      notifyAdmins(headOpsEmails, 'head@snsgroups.com', 'IHUB Booking Approval Required (Head of Ops)', docRef.id, 2);
 
 
       setCurrentView('SUCCESS');
@@ -254,6 +250,58 @@ export default function App() {
     }
   };
 
+  const handleEndMeeting = async (bookingId: string, action: 'Cancelled' | 'Completed') => {
+    try {
+      await updateDoc(doc(db, 'bookings', bookingId), {
+        status: action
+      });
+      toast.success(action === 'Cancelled' ? 'Meeting Cancelled' : 'Meeting Ended Early');
+    } catch (error) {
+      console.error("Error ending meeting:", error);
+      toast.error('Failed to update meeting status.');
+    }
+  };
+
+  const handleExtendBooking = async (bookingId: string, additionalMinutes: number) => {
+    try {
+      const bookingRef = doc(db, 'bookings', bookingId);
+      const bookingSnap = await getDoc(bookingRef);
+      if (!bookingSnap.exists()) return;
+
+      const data = bookingSnap.data() as BookingFormData;
+      const currentDuration = data.duration || '0 mins';
+
+      let totalMins = 0;
+      if (currentDuration === '30 mins') totalMins = 30;
+      else if (currentDuration === '1 hour') totalMins = 60;
+      else if (currentDuration === '2 hours') totalMins = 120;
+      else if (currentDuration === '3 hours') totalMins = 180;
+      else if (currentDuration === 'Half Day') totalMins = 240;
+      else if (currentDuration === 'Full Day') totalMins = 480;
+      else {
+        const hrsMatch = currentDuration.match(/(\d+)\s*hour/i);
+        const minsMatch = currentDuration.match(/(\d+)\s*min/i);
+        if (hrsMatch) totalMins += parseInt(hrsMatch[1], 10) * 60;
+        if (minsMatch) totalMins += parseInt(minsMatch[1], 10);
+      }
+
+      totalMins += additionalMinutes;
+
+      const hrs = Math.floor(totalMins / 60);
+      const mins = totalMins % 60;
+      let newDuration = '';
+      if (hrs > 0) newDuration += `${hrs} ${hrs === 1 ? 'hour' : 'hours'} `;
+      if (mins > 0) newDuration += `${mins} mins`;
+      newDuration = newDuration.trim() || '0 mins';
+
+      await updateDoc(bookingRef, { duration: newDuration });
+      toast.success(`Meeting extended by ${additionalMinutes} mins!`);
+    } catch (error) {
+      console.error("Error extending meeting:", error);
+      toast.error('Failed to extend meeting.');
+    }
+  };
+
   const handleUpdateBookingStatus = async (bookingId: string, stage: 1 | 2, status: ApprovalStatus) => {
     if (!user) return;
 
@@ -268,8 +316,8 @@ export default function App() {
       updates[byKey] = user.name;
 
       let staffEmail = 'staff@snsgroups.com';
+      const bookingData = bookings.find(b => b.id === bookingId);
       try {
-        const bookingData = bookings.find(b => b.id === bookingId);
         if (bookingData && bookingData.userId) {
           const userSnap = await getDoc(doc(db, 'users', bookingData.userId));
           if (userSnap.exists() && userSnap.data().email) {
@@ -285,9 +333,27 @@ export default function App() {
         // Notify Staff of rejection
         sendEmailNotification(staffEmail, 'Booking Request Rejected', `Your booking request for ${bookingId} has been rejected at Stage ${stage}.`);
       } else if (status === 'Approved') {
-        // If either Admin I/C or Head of Ops approve, mark the whole thing as approved.
-        updates.status = 'Approved';
-        sendEmailNotification(staffEmail, 'Booking Request Confirmed ✅', `Your booking request has been fully approved and confirmed!`);
+        if (stage === 1) {
+          // Admin I/C approved. Now notify Head of Ops.
+          const headOpsQuery = query(collection(db, 'users'), where('role', '==', 'head_ops'));
+          const headOpsSnap = await getDocs(headOpsQuery);
+          const headOpsEmails = headOpsSnap.docs.map(doc => doc.data().email as string);
+
+          let emailBody = `A new booking request is awaiting your approval.\nClick the button below to Approve or Reject immediately.`;
+          if (bookingData) {
+            emailBody = `A new booking request is awaiting your approval.\nStaff Name: ${bookingData.bookedBy}\nRoom: ${bookingData.hallName}\nDate: ${bookingData.requiredDate}\nDepartment: ${bookingData.department}\nClick the button below to Approve or Reject immediately.`;
+          }
+
+          if (headOpsEmails.length > 0) {
+            headOpsEmails.forEach(email => sendEmailNotification(email, 'IHUB Booking Approval Required (Head of Ops)', emailBody, bookingId, 2));
+          } else {
+            sendEmailNotification('head@snsgroups.com', 'IHUB Booking Approval Required (Head of Ops)', emailBody, bookingId, 2);
+          }
+        } else if (stage === 2) {
+          // Head of Ops approved. The booking is fully approved!
+          updates.status = 'Approved';
+          sendEmailNotification(staffEmail, 'Booking Request Confirmed ✅', `Your booking request has been fully approved and confirmed!`);
+        }
       }
 
       await updateDoc(bookingRef, updates);
@@ -418,6 +484,8 @@ export default function App() {
             onNewBooking={() => setCurrentView('HOME')}
             onCancelBooking={handleCancelBooking}
             onUpdateStatus={handleUpdateBookingStatus}
+            onEndMeeting={handleEndMeeting}
+            onExtendBooking={handleExtendBooking}
           />
         );
 

@@ -211,7 +211,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({ selectedHall, existing
       const conflictingBooking = existingBookings.find(b =>
         b.hallId === selectedHall.id &&
         b.requiredDate === requiredDate &&
-        b.status !== 'Rejected' &&
+        !['Rejected', 'Cancelled', 'Completed'].includes(b.status) &&
         isOverlapping(startTime, duration, b.startTime, b.duration)
       );
 

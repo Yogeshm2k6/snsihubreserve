@@ -10,7 +10,7 @@ export interface Hall {
   imageUrl?: string;
 }
 
-export type ApprovalStatus = 'Pending' | 'Approved' | 'Rejected';
+export type ApprovalStatus = 'Pending' | 'Approved' | 'Rejected' | 'Cancelled' | 'Completed';
 
 export interface BookingFormData {
   id?: string;

@@ -10,6 +10,8 @@ interface BookingListProps {
   onNewBooking: () => void;
   onCancelBooking: (id: string) => void;
   onUpdateStatus?: (id: string, stage: 1 | 2, status: ApprovalStatus) => void;
+  onEndMeeting?: (id: string, action: 'Cancelled' | 'Completed') => void;
+  onExtendBooking?: (id: string, mins: number) => void;
 }
 
 export const BookingList: React.FC<BookingListProps> = ({
@@ -17,9 +19,14 @@ export const BookingList: React.FC<BookingListProps> = ({
   user,
   onNewBooking,
   onCancelBooking,
-  onUpdateStatus
+  onUpdateStatus,
+  onEndMeeting,
+  onExtendBooking
 }) => {
   const [confirmId, setConfirmId] = useState<string | null>(null);
+  const [endMeetingId, setEndMeetingId] = useState<string | null>(null);
+  const [extendMeetingId, setExtendMeetingId] = useState<string | null>(null);
+  const [extendMinutes, setExtendMinutes] = useState<number>(30);
   const [activeTab, setActiveTab] = useState<'pending' | 'history' | 'myBookings'>('pending');
 
   const pendingBookings = bookings.filter(b => {
@@ -52,6 +59,8 @@ export const BookingList: React.FC<BookingListProps> = ({
     switch (status) {
       case 'Approved': return 'text-brand-800 bg-brand-100 border-brand-200';
       case 'Rejected': return 'text-gray-500 bg-gray-100 border-gray-200 line-through';
+      case 'Cancelled': return 'text-red-700 bg-red-100 border-red-200';
+      case 'Completed': return 'text-blue-700 bg-blue-100 border-blue-200';
       default: return 'text-yellow-700 bg-yellow-50 border-yellow-200';
     }
   };
@@ -60,6 +69,8 @@ export const BookingList: React.FC<BookingListProps> = ({
     switch (status) {
       case 'Approved': return <CheckCircle className="w-4 h-4 mr-1.5" />;
       case 'Rejected': return <XCircle className="w-4 h-4 mr-1.5" />;
+      case 'Cancelled': return <XCircle className="w-4 h-4 mr-1.5" />;
+      case 'Completed': return <CheckCircle className="w-4 h-4 mr-1.5" />;
       default: return <Hourglass className="w-4 h-4 mr-1.5" />;
     }
   };
@@ -125,7 +136,7 @@ export const BookingList: React.FC<BookingListProps> = ({
               Are you sure you want to cancel this booking? This action cannot be undone and will remove the request permanently.
             </p>
 
-            <div className="flex justify-end gap-3">
+            <div className="flex justify-end gap-3 relative z-10">
               <button
                 onClick={() => setConfirmId(null)}
                 className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium transition-colors"
@@ -140,6 +151,108 @@ export const BookingList: React.FC<BookingListProps> = ({
                 className="px-4 py-2 text-white bg-gray-800 hover:bg-gray-900 rounded-lg text-sm font-medium transition-colors shadow-sm"
               >
                 Yes, Cancel it
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* End/Cancel Meeting Modal */}
+      {endMeetingId && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" onClick={() => setEndMeetingId(null)} />
+          <div className="relative bg-white rounded-xl shadow-xl max-w-sm w-full p-6 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-red-50 rounded-full flex items-center justify-center flex-shrink-0">
+                <AlertTriangle className="w-5 h-5 text-red-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-gray-900">Manage Reservation</h3>
+              </div>
+            </div>
+
+            <p className="text-gray-500 text-sm mb-6 ml-13">
+              Do you want to cancel the hall entirely, or end the meeting early? Both actions will free up the hall schedule.
+            </p>
+
+            <div className="flex flex-col gap-2 relative z-10">
+              <button
+                onClick={() => {
+                  if (onEndMeeting) onEndMeeting(endMeetingId, 'Completed');
+                  setEndMeetingId(null);
+                }}
+                className="w-full py-2.5 text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg text-sm font-bold transition-colors"
+              >
+                End Meeting Early
+              </button>
+              <button
+                onClick={() => {
+                  if (onEndMeeting) onEndMeeting(endMeetingId, 'Cancelled');
+                  setEndMeetingId(null);
+                }}
+                className="w-full py-2.5 text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg text-sm font-bold transition-colors"
+              >
+                Cancel Reservation
+              </button>
+              <button
+                onClick={() => setEndMeetingId(null)}
+                className="w-full py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg text-sm font-medium transition-colors mt-2"
+              >
+                Go Back
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Extend Meeting Modal */}
+      {extendMeetingId && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" onClick={() => setExtendMeetingId(null)} />
+          <div className="relative bg-white rounded-xl shadow-xl max-w-sm w-full p-6 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center flex-shrink-0">
+                <Clock className="w-5 h-5 text-blue-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-gray-900">Extend Meeting</h3>
+              </div>
+            </div>
+
+            <p className="text-gray-500 text-sm mb-4">
+              How much additional time do you need?
+            </p>
+
+            <div className="flex flex-col gap-3 relative z-10 mb-6">
+              <select
+                value={extendMinutes}
+                onChange={(e) => setExtendMinutes(Number(e.target.value))}
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-accent-400 outline-none"
+              >
+                <option value={15}>+15 Minutes</option>
+                <option value={30}>+30 Minutes</option>
+                <option value={45}>+45 Minutes</option>
+                <option value={60}>+1 Hour</option>
+                <option value={90}>+1.5 Hours</option>
+                <option value={120}>+2 Hours</option>
+              </select>
+            </div>
+
+            <div className="flex justify-end gap-3 relative z-10">
+              <button
+                onClick={() => setExtendMeetingId(null)}
+                className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  if (onExtendBooking) onExtendBooking(extendMeetingId, extendMinutes);
+                  setExtendMeetingId(null);
+                }}
+                className="px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-bold transition-colors shadow-sm"
+              >
+                Confirm
               </button>
             </div>
           </div>
@@ -297,14 +410,32 @@ export const BookingList: React.FC<BookingListProps> = ({
                   </button>
                 )}
 
-                {/* Download Receipt Button (Visible only if Approved) */}
+                {/* Download Receipt and Actions */}
                 {booking.status === 'Approved' && (
-                  <button
-                    onClick={() => downloadReceipt(booking)}
-                    className="mt-4 md:mt-0 w-full md:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-gray-900 hover:bg-black text-white rounded-xl text-sm font-bold shadow-lg shadow-gray-900/20 transition-all"
-                  >
-                    <Download className="w-4 h-4" /> Download Receipt
-                  </button>
+                  <div className="flex flex-col md:flex-row gap-2 w-full md:w-auto mt-4 md:mt-0 items-stretch md:items-center">
+                    {(user.role === 'admin_ic' || user.role === 'head_ops' || booking.userId === user.uid) && (
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => setExtendMeetingId(booking.id || null)}
+                          className="flex-1 md:flex-none flex items-center justify-center px-4 py-2.5 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-xl text-xs sm:text-sm font-bold border border-blue-200 transition-all shadow-sm"
+                        >
+                          <Clock className="w-4 h-4 mr-1.5" /> Extend
+                        </button>
+                        <button
+                          onClick={() => setEndMeetingId(booking.id || null)}
+                          className="flex-1 md:flex-none flex items-center justify-center px-4 py-2.5 bg-red-50 text-red-700 hover:bg-red-100 rounded-xl text-xs sm:text-sm font-bold border border-red-200 transition-all shadow-sm"
+                        >
+                          <XCircle className="w-4 h-4 mr-1.5" /> End/Cancel
+                        </button>
+                      </div>
+                    )}
+                    <button
+                      onClick={() => downloadReceipt(booking)}
+                      className="w-full md:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-gray-900 hover:bg-black text-white rounded-xl text-sm font-bold shadow-lg shadow-gray-900/20 transition-all"
+                    >
+                      <Download className="w-4 h-4" /> Receipt
+                    </button>
+                  </div>
                 )}
               </div>
 
@@ -437,6 +568,6 @@ export const BookingList: React.FC<BookingListProps> = ({
           ))
         )}
       </div>
-    </div>
+    </div >
   );
 };

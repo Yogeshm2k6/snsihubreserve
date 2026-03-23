@@ -55,8 +55,8 @@ app.use((req, res) => {
     res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
-// Use the PORT provided by the environment, or default to 3000 locally
-const PORT = process.env.PORT || 3000;
+// Use the PORT provided by the environment, or default to 3001 locally
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
